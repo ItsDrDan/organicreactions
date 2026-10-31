@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Organic Reactions Studio • ItsDrDan • CHEM 3B</title>
+<title>Bond Voyage! Organic Reactions • ItsDrDan • CHEM 3B</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2096%2096%22%20role%3D%22img%22%20aria-label%3D%22Bond%20Voyage%20logo%3A%20a%20sailboat%20with%20a%20molecule%20sail%22%3E%0A%3Ccircle%20cx%3D%2248%22%20cy%3D%2248%22%20r%3D%2246%22%20fill%3D%22%23eaf5fd%22%20stroke%3D%22%23b8d4ea%22%20stroke-width%3D%223%22/%3E%0A%3Cpath%20d%3D%22M48%2014v52%22%20stroke%3D%22%235b4636%22%20stroke-width%3D%223.2%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M48%2017l23%206-23%206z%22%20fill%3D%22%23f7c968%22%20stroke%3D%22%23d6a43c%22%20stroke-width%3D%221.5%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M45%2020%20L45%2060%20L17%2060%20Z%22%20fill%3D%22%23fff%22%20stroke%3D%22%233f94c9%22%20stroke-width%3D%222.6%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M21%2056%20L27%2049.5%20L33%2056%20L39%2049.5%22%20fill%3D%22none%22%20stroke%3D%22%232d3f4b%22%20stroke-width%3D%222.6%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M37.6%2049%20V40.5%20M40.6%2049%20V40.5%22%20stroke%3D%22%232d3f4b%22%20stroke-width%3D%222.3%22%20stroke-linecap%3D%22round%22/%3E%0A%3Ctext%20x%3D%2239.1%22%20y%3D%2238%22%20text-anchor%3D%22middle%22%20font-family%3D%22Inter%2CHelvetica%2CArial%2Csans-serif%22%20font-size%3D%2210%22%20font-weight%3D%22900%22%20fill%3D%22%23c0392b%22%3EO%3C/text%3E%0A%3Cpath%20d%3D%22M51%2033%20L51%2060%20L70%2060%20Z%22%20fill%3D%22%23fde7e7%22%20stroke%3D%22%23d96b5f%22%20stroke-width%3D%222.6%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M14%2064%20H82%20L74%2076%20H22%20Z%22%20fill%3D%22%23d96b5f%22%20stroke%3D%22%23a9483e%22%20stroke-width%3D%222.2%22%20stroke-linejoin%3D%22round%22/%3E%0A%3Ccircle%20cx%3D%2234%22%20cy%3D%2270%22%20r%3D%222.4%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2270%22%20r%3D%222.4%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%2262%22%20cy%3D%2270%22%20r%3D%222.4%22%20fill%3D%22%23fff%22/%3E%0A%3Cpath%20d%3D%22M10%2080%20q6%20-5%2012%200%20t12%200%20t12%200%20t12%200%20t12%200%20t12%200%20t12%200%22%20fill%3D%22none%22%20stroke%3D%22%234a9fd6%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M18%2087%20q6%20-4%2012%200%20t12%200%20t12%200%20t12%200%20t12%200%22%20fill%3D%22none%22%20stroke%3D%22%238fd8c8%22%20stroke-width%3D%222.6%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E">
 <style>
 :root{--ink:#22313b;--muted:#5c6a75;--line:#e4dfd3;--card:#fffefa;--blue:#4a9fd6;--blue-d:#3b82b4;}
 *{box-sizing:border-box}
@@ -15,7 +16,7 @@ button,select,input{font:inherit;color:inherit}
 .hero h1 .a{color:#d96b5f}.hero h1 .b{color:#3f94c9}
 .hero .subtitle{margin:0;color:var(--muted);font-size:15px}
 .badge{display:inline-block;background:#f1ece2;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:800}
-.hero-emoji{font-size:64px;line-height:1;filter:drop-shadow(0 4px 6px #0002)}
+.hero-logo{width:92px;flex:0 0 92px;filter:drop-shadow(0 4px 6px #0002)}.hero-logo svg{display:block;width:100%;height:auto}
 details.directions{margin:10px 0;padding:0;border:2px solid #9fb6e8;border-bottom-width:5px;border-radius:18px;background:linear-gradient(120deg,#f6f2ff,#f0f8ff);box-shadow:0 4px 0 #9fb6e833,0 8px 16px #26343c0d}
 details.directions>summary{list-style:none;cursor:pointer;padding:12px 18px;font-weight:900;font-size:18px;display:flex;justify-content:space-between;align-items:center;min-height:48px;border-radius:16px}
 details.directions>summary::-webkit-details-marker{display:none}
@@ -65,8 +66,11 @@ details.directions .tip{margin:8px 18px 16px;background:#fff6d6;border-radius:12
 .plus{font-size:26px;font-weight:900;color:#6b7a85;padding:0 4px}
 .ptext{font-size:22px;font-weight:800;padding:0 6px}
 .coef{font-size:24px;font-weight:900;margin-right:4px}
-.rarrow{display:inline-flex;flex-direction:column;align-items:center;font-size:34px;font-weight:900;line-height:1;margin:0 6px}
-.rlab{font-size:14px;font-weight:800;color:#3b5f7a;text-align:center;line-height:1.1;min-height:14px;max-width:150px}
+.rarrow{display:inline-flex;flex-direction:column;align-items:stretch;justify-content:center;min-width:104px;margin:0 8px;padding:0 2px}
+.arrline{position:relative;display:block;height:2.6px;background:#2d3f4b;border-radius:2px;margin:5px 9px 5px 0}
+.arrline::after{content:'';position:absolute;right:-10px;top:50%;transform:translateY(-50%);border-left:13px solid #2d3f4b;border-top:6.5px solid transparent;border-bottom:6.5px solid transparent}
+.rlab{font-size:14px;font-weight:800;color:#3b5f7a;text-align:center;line-height:1.15;min-height:16px;max-width:170px;padding:0 10px 0 4px;white-space:nowrap}
+.rlab.bot{font-weight:700;color:#5c6a75}
 .options{display:grid;gap:10px;margin:8px 0 4px}
 .cols2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .option{display:flex;align-items:center;gap:10px;text-align:left;background:#fff;border:2px solid #dcd6c8;border-bottom-width:4px;border-radius:16px;padding:10px 14px;min-height:58px;font-size:18px;font-weight:700;cursor:pointer;transition:transform .12s}
@@ -153,7 +157,7 @@ details.directions .tip{margin:8px 18px 16px;background:#fff6d6;border-radius:12
 @media(max-width:1000px){.main{grid-template-columns:1fr;grid-template-areas:"card" "side" "ref" "vid"}.mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mode-btn:last-child{grid-column:1/-1}}
 @media(max-width:700px){
  .app{padding:10px 10px 30px}
- .hero{padding:10px 14px}.hero .subtitle{display:none}.hero h1{font-size:24px}.hero-emoji{font-size:44px}.badge{font-size:11px;padding:4px 8px}
+ .hero{padding:10px 14px}.hero .subtitle{display:none}.hero h1{font-size:24px}.hero-logo{width:60px;flex-basis:60px}.badge{font-size:11px;padding:4px 8px}
  .sum-hint{padding:4px 10px;font-size:12px}
  .mode-grid{gap:8px}.mode-btn{grid-template-columns:34px 1fr;padding:8px 8px 10px;min-height:52px}.mode-btn small{display:none}.mode-icon{width:34px;height:34px}.mode-icon svg{width:22px;height:22px}.mode-name{font-size:14px}
  .card{padding:12px}.prompt{font-size:18px}.namechip{font-size:16px;padding:8px 10px}
@@ -165,15 +169,28 @@ details.directions .tip{margin:8px 18px 16px;background:#fff6d6;border-radius:12
  .toolpanel{padding:10px;gap:7px}.tbtn{padding:8px 11px;font-size:14px;min-height:46px}
  .padbar{gap:6px}.grp{width:100%;flex-direction:row;align-items:center;gap:6px}.grp .cap{width:44px;flex:0 0 44px;padding:0;font-size:10px}
  .seg{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:1fr}.seg button{padding:4px 2px;min-width:0;font-size:14px}.seg .tx{display:inline;font-size:11px}.seg.tools button,.seg.acts button{flex-direction:column;gap:0}
- .rxn{padding:6px}.molitem svg.mol{max-height:120px;width:auto}
+ .rxn{padding:6px}.rarrow{min-width:78px;margin:0 4px}.rlab{font-size:13px;white-space:normal}.molitem svg.mol{max-height:120px;width:auto}
 }
 </style></head>
 <body>
 <div class="celebrate" id="celebrate"></div><div class="toast" id="toast" role="status"></div>
 <div class="app">
-<section class="hero"><div><span class="badge">🧪 Organic Reactions • ItsDrDan • CHEM 3B</span>
-<h1><span class="a">Organic</span> <span class="b">Reactions</span> Studio</h1>
-<p class="subtitle">Name the reaction type, then draw the reactants and products from their names.</p></div><div class="hero-emoji" aria-hidden="true">⚗️</div></section>
+<section class="hero"><div><span class="badge">⛵ Organic Reactions • ItsDrDan • CHEM 3B</span>
+<h1><span class="a">Bond</span> <span class="b">Voyage!</span></h1>
+<p class="subtitle">Set sail through organic reactions: bonds break, bonds form. Name the reaction, then draw and name what goes in and what comes out.</p></div><div class="hero-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Bond Voyage logo: a sailboat with a molecule sail">
+<circle cx="48" cy="48" r="46" fill="#eaf5fd" stroke="#b8d4ea" stroke-width="3"/>
+<path d="M48 14v52" stroke="#5b4636" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M48 17l23 6-23 6z" fill="#f7c968" stroke="#d6a43c" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M45 20 L45 60 L17 60 Z" fill="#fff" stroke="#3f94c9" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M21 56 L27 49.5 L33 56 L39 49.5" fill="none" stroke="#2d3f4b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M37.6 49 V40.5 M40.6 49 V40.5" stroke="#2d3f4b" stroke-width="2.3" stroke-linecap="round"/>
+<text x="39.1" y="38" text-anchor="middle" font-family="Inter,Helvetica,Arial,sans-serif" font-size="10" font-weight="900" fill="#c0392b">O</text>
+<path d="M51 33 L51 60 L70 60 Z" fill="#fde7e7" stroke="#d96b5f" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M14 64 H82 L74 76 H22 Z" fill="#d96b5f" stroke="#a9483e" stroke-width="2.2" stroke-linejoin="round"/>
+<circle cx="34" cy="70" r="2.4" fill="#fff"/><circle cx="48" cy="70" r="2.4" fill="#fff"/><circle cx="62" cy="70" r="2.4" fill="#fff"/>
+<path d="M10 80 q6 -5 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0" fill="none" stroke="#4a9fd6" stroke-width="3" stroke-linecap="round"/>
+<path d="M18 87 q6 -4 12 0 t12 0 t12 0 t12 0 t12 0" fill="none" stroke="#8fd8c8" stroke-width="2.6" stroke-linecap="round"/>
+</svg></div></section>
 <details class="directions" id="howTo"><summary>📘 How to use this game <span class="sum-hint">Tap to open</span></summary>
 <ol><li><strong>Pick a mode.</strong> Identify the Reaction, Draw the Product, Draw the Reactant, or Full Reaction (all three steps).</li>
 <li><strong>Draw on the pad.</strong> With ✏️ Draw on, tap empty space to place an atom, tap an atom to grow a new bond from it, or drag from one atom to another to connect them. Tap a bond to cycle single → double → triple.</li>
@@ -602,7 +619,9 @@ function partHTML(p,show,style){if(!p.smi)return `<span class="ptext">${esc(p.t)
 function rxnHTML(r,view,style){view=view||{};const hid=view.hideIdx||[];
  const re=r.reactants.map((p,i)=>partHTML(p,hid.includes(i)?'hidden':(hid.length?'name':view.re),style)).join('<span class="plus">+</span>');
  const pr=view.pr==='hidden'?'<span class="qchip">?</span>':r.products.map(p=>partHTML(p,view.pr,style)).join('<span class="plus">+</span>');
- return `<div class="rxn">${re}<span class="rarrow"><span class="rlab">${esc(r.cond||'')}</span>→</span>${pr}</div>`}
+ return `<div class="rxn">${re}${arrowHTML(r.cond)}${pr}</div>`}
+function arrowHTML(cond){const parts=String(cond||'').split(/,\s*/).filter(Boolean);const top=parts.length>1?parts.slice(0,-1).join(', '):(parts[0]||''),bot=parts.length>1?parts[parts.length-1]:'';
+ return `<span class="rarrow" role="img" aria-label="reaction arrow${cond?', conditions: '+esc(cond):''}"><span class="rlab">${esc(top)||'&nbsp;'}</span><span class="arrline"></span><span class="rlab bot">${esc(bot)||'&nbsp;'}</span></span>`}
 
 /* ================= drawing pad ================= */
 let W=640,H=320;const CBL=56,MARG=26;
@@ -717,7 +736,7 @@ function diagnose(uc,tg,multi){
 /* ================= UI state, journey ================= */
 const MODES=[
  {id:'identify',title:'Identify the Reaction',short:'Name the reaction type',icon:'<circle cx="21" cy="21" r="11"/><path d="m30 30 12 12"/>'},
- {id:'product',title:'Draw the Product',short:'From reactant names',icon:'<path d="M6 24h24m-8-8 8 8-8 8"/><path d="M36 34 44 14"/>'},
+ {id:'product',title:'Draw the Product',short:'From names or structures',icon:'<path d="M6 24h24m-8-8 8 8-8 8"/><path d="M36 34 44 14"/>'},
  {id:'reactant',title:'Draw the Reactant',short:'Work backward from the product',icon:'<path d="M42 24H18m8-8-8 8 8 8"/><path d="M4 34 12 14"/>'},
  {id:'name',title:'Name It',short:'Type the name from a structure',icon:'<path d="M8 12h32v22H24l-8 8v-8H8z"/><path d="M15 21h18M15 27h12"/>'},
  {id:'full',title:'Full Reaction',short:'Reactant, type, product, name',icon:'<path d="M12 36 36 12M30 10l8 8-22 22-10 2 2-10z"/>'}];

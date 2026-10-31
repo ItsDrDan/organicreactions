@@ -1,4 +1,4 @@
-# Organic Reactions Studio (CHEM 3B)
+# Bond Voyage! Organic Reactions (CHEM 3B)
 
 Interactive study game by Dr. Dan (ItsDrDan) for CHEM 3B organic reactions.
 
@@ -9,4 +9,4 @@ Interactive study game by Dr. Dan (ItsDrDan) for CHEM 3B organic reactions.
 - **Full Reaction**: reactant, reaction type, product, then name it
 
 Single self-contained `index.html`; works on GitHub Pages and embedded in Canvas.
-Current version: v3 (organic-reactions-v3).
+Current version: v5 (organic-reactions-v5).

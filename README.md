@@ -8,4 +8,4 @@ Interactive study game by Dr. Dan (ItsDrDan) for CHEM 3B organic reactions.
 - **Full Reaction**: draw the reactant, identify the type, draw the product
 
 Single self-contained `index.html`; works on GitHub Pages and embedded in Canvas.
-Current version: v1 (organic-reactions-v1).
+Current version: v2 (organic-reactions-v2).

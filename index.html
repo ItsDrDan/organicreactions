@@ -89,10 +89,22 @@ details.directions .tip{margin:8px 18px 16px;background:#fff6d6;border-radius:12
 .tb.ord.on{background:#7caf86;border-color:#5d9168}
 .ws-wrap{background:#fff;border:2px dashed #d6dfe6;border-radius:14px;overflow:hidden}
 #ws{display:block;width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-select:none;cursor:crosshair}
-.audit{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:14px;font-weight:700}
+.padbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;margin-bottom:8px}
+.grp{display:flex;flex-direction:column;gap:3px}
+.grp .cap{font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#7a8894;padding-left:4px}
+.seg{display:inline-flex;border:2px solid #d5dce2;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 2px 0 #d5dce2}
+.seg button{border:0;border-right:1px solid #e6ebef;background:#fff;min-height:42px;min-width:42px;padding:4px 11px;font-weight:800;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px}
+.seg button:last-child{border-right:0}
+.seg button:hover{background:#f2f7fb}
+.seg button.on{background:#263840;color:#fff}
+.seg.atoms button.on{background:#4a9fd6}.seg.bonds button.on{background:#7caf86}
+.seg.bonds button{font-size:19px}
+.seg .ic{font-size:15px;line-height:1}
+.padfoot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 10px;margin-top:6px}
+.audit{display:flex;flex-wrap:wrap;gap:8px;font-size:14px;font-weight:700}
 .audit span{background:#f1ece2;border-radius:999px;padding:4px 10px}
 .audit .over{background:#fdeeed;color:#a2382f}
-.padhelp{font-size:13px;color:var(--muted);margin:6px 2px 0}
+.padhelp{font-size:13px;color:var(--muted);margin:0 2px;font-weight:600}
 .btn-row{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:10px;margin-top:12px}
 .hintbox{display:none;background:#fff6d6;border:1px solid #f0dc94;border-radius:14px;padding:10px 14px;margin-top:10px;font-weight:600}
 .hintbox.show{display:block}
@@ -119,7 +131,8 @@ details.directions .tip{margin:8px 18px 16px;background:#fff6d6;border-radius:12
 .jbadge{border:2px dashed #d5dce2;border-radius:12px;padding:8px 10px;font-size:13px;opacity:.55;background:#fff}
 .jbadge.earned{opacity:1;border:2px solid #f0cf86;background:#fff8e6}.jbadge .bt{font-weight:900;font-size:14px}
 .journey-reset{margin-top:12px;font-size:14px;min-height:42px;padding:6px 14px;border-radius:12px;border:2px solid #d5dce2;background:#fff;cursor:pointer}
-.table-scroll{overflow-x:auto}
+.refcards{display:grid;gap:7px}.refcard{background:#fff;border:1px solid #e6e0d2;border-radius:12px;padding:7px 10px;font-size:13px;line-height:1.35}.refcard .rh{display:flex;justify-content:space-between;gap:6px;align-items:baseline}.refcard .rh b{font-size:14px}.refcard .rc{font-size:11px;font-weight:900;background:#f4f0fb;border-radius:999px;padding:1px 8px;white-space:nowrap}.refcard .rr{color:#3b5f7a;font-weight:700}.refcard .rx{color:var(--muted);font-style:italic}
+@media(max-width:1000px){.refcards{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}}
 .ref-table{width:100%;border-collapse:collapse;font-size:13.5px}.ref-table th,.ref-table td{border:1px solid #e6e0d2;padding:6px 8px;text-align:left;vertical-align:top}.ref-table th{background:#f4f0fb}.ref-table td.g{font-weight:900}
 .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,30px);opacity:0;background:#fff8e6;border:3px solid #f0cf86;border-radius:16px;padding:12px 18px;font-weight:800;font-size:17px;box-shadow:0 8px 24px #0002;pointer-events:none;transition:.3s;z-index:50}
 .toast.show{opacity:1;transform:translate(-50%,0)}
@@ -139,7 +152,8 @@ details.directions .tip{margin:8px 18px 16px;background:#fff6d6;border-radius:12
  .btn-row{grid-template-columns:1fr 1fr;position:sticky;bottom:0;z-index:5;background:linear-gradient(#fff0,#fffcf6 22%);padding:10px 0 8px;margin-bottom:0}.btn-row .primary{grid-column:1/-1}
  #nextBtn{flex:1 1 100%}
  body.drawing .btn-row{position:static;background:none}
- .toolrow .lab{display:none}.toolrow{gap:5px;margin-bottom:5px}.tb{min-width:40px}
+ .padbar{gap:6px}.grp{width:100%;flex-direction:row;align-items:center;gap:6px}.grp .cap{width:44px;flex:0 0 44px;padding:0;font-size:10px}
+ .seg{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:1fr}.seg button{padding:4px 2px;min-width:0;font-size:14px}.seg .tx{display:inline;font-size:11px}.seg.tools button,.seg.acts button{flex-direction:column;gap:0}
  .rxn{padding:6px}.molitem svg.mol{max-height:120px;width:auto}
 }
 </style></head>
@@ -244,8 +258,10 @@ function groupsOf(g){const adj=adjOf(g),out=new Set(),A=g.atoms;
    if(cn.length===1&&hCount(g,adj,i)===1){out.add(dblO(cn[0].n)?'acid':'alcohol');return}
    if(cn.length===2){out.add(cn.some(x=>dblO(x.n))?'ester':'ether')}}
   if(a.el==='N'){if(adj[i].some(x=>isC(x.n)&&dblO(x.n)))return;out.add(a.charge===1?'ammonium':'amine')}});
+ A.forEach((a,i)=>{if(a.el!=='C')return;const os=adj[i].filter(x=>x.o===1&&A[x.n].el==='O'&&!A[x.n].charge);if(os.length<2||dblO(i))return;const oh=os.filter(x=>hCount(g,adj,x.n)===1).length;
+  out.delete('alcohol');out.delete('ether');out.add(oh?'hemiacetal':'acetal')});
  return [...out]}
-const GNAME={alkene:'alkene',alkyne:'alkyne',halide:'alkyl halide',alcohol:'alcohol',ether:'ether',aldehyde:'aldehyde',ketone:'ketone',acid:'carboxylic acid',ester:'ester',carboxylate:'carboxylate ion',amine:'amine',ammonium:'ammonium ion',amide:'amide',alkane:'alkane'};
+const GNAME={alkene:'alkene',alkyne:'alkyne',halide:'alkyl halide',alcohol:'alcohol',ether:'ether',aldehyde:'aldehyde',ketone:'ketone',acid:'carboxylic acid',ester:'ester',carboxylate:'carboxylate ion',amine:'amine',ammonium:'ammonium ion',amide:'amide',alkane:'alkane',hemiacetal:'hemiacetal',acetal:'acetal'};
 const gList=g=>{const l=groupsOf(g);return l.length?l:['alkane']};
 const an=w=>(/^[aeiou]/i.test(w)?'an ':'a ')+w;
 
@@ -345,11 +361,17 @@ const acid=n=>C(lin(n,{[n]:['=O','O']}),n===1?'methanoic acid (formic acid)':n==
 const carbox=n=>C(lin(n,{[n]:['=O','[O-]']}),n===1?'methanoate (formate) ion':n===2?'ethanoate (acetate) ion':ST[n]+'anoate ion');
 const saltName=n=>n===1?'sodium methanoate (sodium formate)':n===2?'sodium ethanoate (sodium acetate)':`sodium ${ST[n]}anoate`;
 const ester=(a,b)=>C(lin(a,{[a]:['=O']})+'O'+'C'.repeat(b),`${ST[b]}yl ${ST[a]}anoate`);
-const amide=(a,r)=>C(lin(a,{[a]:['=O']})+'N'+'C'.repeat(r),(r?`N-${ST[r]}yl`:'')+(a===2&&!r?'ethanamide (acetamide)':ST[a]+'anamide'));
+const amide=(a,r)=>r==='dm'?C(lin(a,{[a]:['=O']})+'N(C)C',`N,N-dimethyl${ST[a]}anamide`):C(lin(a,{[a]:['=O']})+'N'+'C'.repeat(r),(r?`N-${ST[r]}yl`:'')+(a===2&&!r?'ethanamide (acetamide)':ST[a]+'anamide'));
 const AMINES=[{smi:'CN',name:'methylamine',ion:C('C[NH3+]','methylammonium ion'),salt:'methylammonium chloride',r:1},{smi:'CCN',name:'ethylamine',ion:C('CC[NH3+]','ethylammonium ion'),salt:'ethylammonium chloride',r:2},{smi:'CCCN',name:'propylamine',ion:C('CCC[NH3+]','propylammonium ion'),salt:'propylammonium chloride',r:3},{smi:'CNC',name:'dimethylamine',ion:C('C[NH2+]C','dimethylammonium ion'),salt:'dimethylammonium chloride',r:0}];
 const CY={ane:C('C1CCCCC1','cyclohexane'),ene:C('C1=CCCCC1','cyclohexene'),ol:C('OC1CCCCC1','cyclohexanol'),one:C('O=C1CCCCC1','cyclohexanone'),Cl:C('ClC1CCCCC1','chlorocyclohexane'),Br:C('BrC1CCCCC1','bromocyclohexane'),di:X=>C(`${X}C1CCCCC1${X}`,`1,2-di${XN[X]}cyclohexane`)};
 const IB={ene:C('C=C(C)C','2-methylpropene'),ane:C('CC(C)C','2-methylpropane'),ol:C('CC(C)(C)O','2-methyl-2-propanol (tert-butyl alcohol)'),ol1:C('CC(C)CO','2-methyl-1-propanol'),hx:X=>C(`CC(C)(C)${X}`,`2-${XN[X]}-2-methylpropane`),x2:X=>C(`${X}CC(C)(C)${X}`,`1,2-di${XN[X]}-2-methylpropane`)};
 const T=t=>({t});
+const ALKOXY=['','methoxy','ethoxy'];
+const hemiacetal=(n,m)=>C(lin(n,{[n]:['O','O'+'C'.repeat(m)]}),n===2?`1-${ALKOXY[m]}ethanol`:`1-${ALKOXY[m]}-1-${ST[n]}anol`);
+const acetal=(n,m)=>C(lin(n,{[n]:['O'+'C'.repeat(m),'O'+'C'.repeat(m)]}),`1,1-di${ALKOXY[m]}${ST[n]}ane`);
+const hemiketal=m=>C(`CC(C)(O)O${'C'.repeat(m)}`,`2-${ALKOXY[m]}-2-propanol`);
+const ketal=m=>C(`CC(C)(O${'C'.repeat(m)})O${'C'.repeat(m)}`,`2,2-di${ALKOXY[m]}propane`);
+const MB={ol:C('CC(C)(O)CC','2-methyl-2-butanol'),ol3:C('CC(C)C(O)C','3-methyl-2-butanol'),ene:C('CC(C)=CC','2-methyl-2-butene')};
 /* alkenes used in addition reactions. mk: Markovnikov product is a single compound; rv: reverse question has a clear answer set */
 const ALK=[
  {alk:alkene(2,1),h2:alkane(2),hx:X=>halo(2,1,X),oh:alcohol(2,1),x2:X=>dihalo(2,1,X),mk:1,rv:1,alts:[alkene(2,1)],straight:2},
@@ -369,10 +391,10 @@ const h2Alts=e=>e.straight?Array.from({length:Math.floor(e.straight/2)},(_,k)=>a
 /* each returns {key,type,cls,set,reactants,cond,products,draw:[idx],rev:{idx,alts,prompt}|null,rule,hint,salt} */
 const MK='Markovnikov’s rule: the H adds to the C=C carbon that already has more H atoms, so the new group ends up on the more substituted carbon.';
 const TPL={
- combustion(){const c=Math.random()<.15?{f:C('C1CCCCC1','cyclohexane'),C:6,H:12}:(n=>({f:alkane(n),C:n,H:2*n+2}))(rnd(1,8));
-  let a=1,o=(2*c.C+c.H/2)/2,co=c.C,w=c.H/2;if(o%1){a*=2;o*=2;co*=2;w*=2}
+ combustion(){const u=Math.random();const c=u<.12?{f:C('C1CCCCC1','cyclohexane'),C:6,H:12,O:0}:u<.35?(n=>({f:alcohol(n,1),C:n,H:2*n+2,O:1}))(rnd(1,3)):(n=>({f:alkane(n),C:n,H:2*n+2,O:0}))(rnd(1,8));
+  let a=1,o=(2*c.C+c.H/2-c.O)/2,co=c.C,w=c.H/2;if(o%1){a*=2;o*=2;co*=2;w*=2}
   return {type:'Combustion',cls:'Combustion',set:'hydrocarbon',reactants:[{...c.f,coef:a>1?a:''},T(`${o} O₂`)],cond:'spark',products:[T(`${co} CO₂`),T(`${w} H₂O`)],draw:null,rev:null,
-   rule:`Combustion: a hydrocarbon burns in O₂ to make CO₂ and H₂O and releases energy. Every C–H and C–C bond is broken, so the carbon chain does not survive.`,hint:'Look at the products: only CO₂ and H₂O, made from a hydrocarbon and oxygen.'}},
+   rule:`Combustion: ${c.O?'an alcohol':'a hydrocarbon'} burns in O₂ to make CO₂ and H₂O and releases energy. Every C–H and C–C bond is broken, so the carbon chain does not survive.`,hint:'Look at the products: only CO₂ and H₂O, made from an organic compound and oxygen.'}},
  substitution(){const X=pick(['Cl','Br']);const r=pick([[alkane(1),halo(1,1,X)],[alkane(2),halo(2,1,X)],[CY.ane,CY[X]]]);
   return {type:'Halogenation (substitution)',cls:'Substitution',set:'hydrocarbon',reactants:[r[0],T(X+'₂')],cond:'light (hν)',products:[r[1],T('H'+X)],draw:[0],rev:{idx:[0],prompt:`Draw the alkane that reacted with ${X}₂ in light to give ${r[1].name}.`},
    rule:`Halogenation of an alkane is a substitution: light breaks the ${X}–${X} bond and one H on the alkane is replaced by ${X}. The H that leaves ends up in H${X}.`,hint:`Swap one H on the alkane for a ${X} atom. The carbon skeleton does not change.`}},
@@ -394,7 +416,7 @@ const TPL={
   return {type:'Hydration',cls:'Addition',set:'alcohol',reactants:[e.alk,T('H₂O')],cond:'H⁺ (H₂SO₄)',products:[p],draw:[0],
    rev:e.rv?{idx:[0],alts:e.alts.map(a=>[a.smi]),prompt:`Draw an alkene that reacts with H₂O (H⁺) to give ${p.name} as the major product.${e.alts.length>1?' Either correct alkene counts.':''}`}:null,
    rule:`Hydration is an addition: water adds across the C=C as H and OH, making an alcohol. ${MK}`,hint:'Water adds as H– and –OH across the double bond. The OH goes on the C=C carbon with fewer H atoms.'}},
- dehydration(){const r=pick([{al:alcohol(2,1),ene:alkene(2,1),alts:[alcohol(2,1)]},{al:alcohol(3,1),ene:alkene(3,1),alts:[alcohol(3,1),alcohol(3,2)]},{al:alcohol(3,2),ene:alkene(3,1),alts:[alcohol(3,1),alcohol(3,2)]},{al:CY.ol,ene:CY.ene,alts:[CY.ol]},{al:IB.ol,ene:IB.ene,alts:[IB.ol,IB.ol1]},{al:alcohol(5,3),ene:alkene(5,2),alts:[alcohol(5,3),alcohol(5,2)]}]);
+ dehydration(){const r=pick([{al:alcohol(2,1),ene:alkene(2,1),alts:[alcohol(2,1)]},{al:alcohol(3,1),ene:alkene(3,1),alts:[alcohol(3,1),alcohol(3,2)]},{al:alcohol(3,2),ene:alkene(3,1),alts:[alcohol(3,1),alcohol(3,2)]},{al:CY.ol,ene:CY.ene,alts:[CY.ol]},{al:IB.ol,ene:IB.ene,alts:[IB.ol,IB.ol1]},{al:alcohol(5,3),ene:alkene(5,2),alts:[alcohol(5,3),alcohol(5,2)]},{al:MB.ol,ene:MB.ene,alts:[MB.ol,MB.ol3]}]);
   return {type:'Dehydration',cls:'Elimination',set:'alcohol',reactants:[r.al],cond:'H₂SO₄, heat',products:[r.ene,T('H₂O')],draw:[0],
    rev:{idx:[0],alts:r.alts.map(a=>[a.smi]),prompt:`Draw an alcohol that loses water (H₂SO₄, heat) to give ${r.ene.name} as the major product.${r.alts.length>1?' Any correct alcohol counts.':''}`},
    rule:'Dehydration is an elimination: the –OH and an H from the neighboring carbon leave together as H₂O, and a C=C forms between those two carbons. (When there is a choice, the C=C forms toward the carbon with fewer H atoms.)',hint:'Remove the OH and one H from the carbon next door, then draw a C=C between those two carbons.'}},
@@ -423,14 +445,24 @@ const TPL={
  saponification(){const a=rnd(1,4),b=rnd(1,4),es=ester(a,b),cx=carbox(a),al=alcohol(b,1);
   return {type:'Saponification',cls:'Hydrolysis',excl:['Hydrolysis'],set:'acid',reactants:[es,T('NaOH')],cond:'heat',products:[cx,T('Na⁺'),al],draw:[0,2],salt:saltName(a),rev:{idx:[0],prompt:`Heating an ester with NaOH gave ${saltName(a)} and ${al.name}. Draw the ester.`},
    rule:`Saponification is the hydrolysis of an ester in base (NaOH). The C–O bond next to the C=O breaks: the acid part comes out as its carboxylate salt (${saltName(a)}) and the O–alkyl part becomes an alcohol. This is how soap is made from fats.`,hint:'Same split as ester hydrolysis, but in base the acid part ends up as –COO⁻ (with Na⁺). Use ± Charge to put a − on the O.'}},
- amidation(){const a=rnd(1,4),am=Math.random()<.45?null:pick(AMINES.slice(0,2));const ac=acid(a),pr=amide(a,am?am.r:0);
-  return {type:'Amide formation',cls:'Condensation',set:'acid',reactants:am?[ac,C(am.smi,am.name)]:[ac,T('NH₃')],cond:'heat',products:[pr,T('H₂O')],draw:[0],
+ amidation(){const a=rnd(1,4),am=Math.random()<.4?null:pick([AMINES[0],AMINES[1],AMINES[3]]);const ac=acid(a),pr=amide(a,am?(am.r||'dm'):0);
+  return {type:'Amidation',cls:'Condensation',set:'acid',reactants:am?[ac,C(am.smi,am.name)]:[ac,T('NH₃')],cond:'heat',products:[pr,T('H₂O')],draw:[0],
    rev:am?{idx:[0,1],prompt:`${cap(pr.name)} was made from a carboxylic acid and an amine. Draw both, as two separate molecules.`}:{idx:[0],prompt:`${cap(pr.name)} was made by heating a carboxylic acid with NH₃. Draw the carboxylic acid.`},
-   rule:`Amide formation is a condensation: the acid loses –OH and the ${am?'amine':'ammonia'} loses an H from N, together making H₂O. The new C–N bond makes an amide${am?`; the group on N is named with N- (${pr.name})`:''}.`,hint:'Replace the –OH of the acid with the N of the amine (keeping its other groups). Water is the other product.'}},
+   rule:`Amidation is a condensation: the acid loses –OH and the ${am?'amine':'ammonia'} loses an H from N, together making H₂O. The new C–N bond makes an amide${am?`; the group on N is named with N- (${pr.name})`:''}.`,hint:'Replace the –OH of the acid with the N of the amine (keeping its other groups). Water is the other product.'}},
  amideHydrolysis(){const a=rnd(1,4),r=Math.random()<.5?0:1,am=amide(a,r),ac=acid(a);
   return {type:'Hydrolysis',cls:'Hydrolysis',set:'acid',reactants:[am,T('H₂O'),T('H⁺')],cond:'heat',products:r?[ac,AMINES[0].ion]:[ac,T('NH₄⁺')],draw:r?[0,1]:[0],
    rev:{idx:[0],prompt:`Acid hydrolysis gave ${ac.name} and ${r?'the methylammonium ion':'NH₄⁺'}. Draw the amide that was hydrolyzed.`},
    rule:`Hydrolysis of an amide: water breaks the C–N bond. The carbonyl side becomes a carboxylic acid; in acid the nitrogen part picks up H⁺ and comes out as ${r?'an ammonium ion (CH₃NH₃⁺)':'NH₄⁺'}.`,hint:`Break the C–N bond next to the C=O. The carbonyl carbon gets an OH${r?'; the N part becomes CH₃NH₃⁺ (use ± Charge on N)':''}.`}},
+ amideBase(){const a=rnd(1,4),r=pick([0,1,1,2]),am=amide(a,r),cx=carbox(a),amn=r?C(AMINES[r-1].smi,AMINES[r-1].name):null;
+  return {type:'Hydrolysis',cls:'Hydrolysis',excl:['Saponification'],set:'acid',reactants:[am,T('NaOH')],cond:'heat',products:r?[cx,T('Na⁺'),amn]:[cx,T('Na⁺'),T('NH₃')],draw:r?[0,2]:[0],salt:saltName(a),
+   rev:{idx:[0],prompt:`Base hydrolysis (NaOH) gave ${saltName(a)} and ${r?amn.name:'NH₃'}. Draw the amide that was hydrolyzed.`},
+   rule:`Base hydrolysis of an amide: OH⁻ breaks the C–N bond. The carbonyl side comes out as a carboxylate salt (${saltName(a)}) and the nitrogen side comes out as ${r?'an amine ('+amn.name+')':'ammonia (NH₃)'}. (In acid you get the carboxylic acid and an ammonium salt instead.)`,hint:'Break the C–N bond next to the C=O. In base the acid part becomes –COO⁻ (use ± Charge) and the N part becomes a neutral amine.'}},
+ hemiacetal(){const ket=Math.random()<.3,m=rnd(1,2);let c,p,nm;if(ket){c=ketone(3,2);p=hemiketal(m)}else{const n=rnd(2,4);c=aldehyde(n);p=hemiacetal(n,m)}const al=alcohol(m,1);
+  return {type:'Hemiacetal formation',cls:'Addition',noClass:true,set:'alcohol',reactants:[c,al],cond:'H⁺',products:[p],draw:[0],rev:{idx:[0,1],prompt:`${cap(p.name)} is a hemiacetal. Draw the ${ket?'ketone':'aldehyde'} AND the alcohol that formed it, as two separate molecules.`},
+   rule:'Hemiacetal formation: one alcohol adds across the C=O. The alcohol’s O bonds to the carbonyl carbon and its H goes to the carbonyl O, so that carbon ends up with an –OH and an –OR. Sugars such as glucose form cyclic hemiacetals this way.',hint:'Turn the C=O into C–OH, and attach the alcohol’s –O–R group to that same carbon.'}},
+ acetal(){const ket=Math.random()<.3,m=rnd(1,2);let c,p;if(ket){c=ketone(3,2);p=ketal(m)}else{const n=rnd(2,4);c=aldehyde(n);p=acetal(n,m)}const al=alcohol(m,1);
+  return {type:'Acetal formation',cls:'Condensation',noClass:true,set:'alcohol',reactants:[c,{...al,coef:2}],cond:'H⁺',products:[p,T('H₂O')],draw:[0],rev:{idx:[0,1],prompt:`${cap(p.name)} is an acetal. Draw the ${ket?'ketone':'aldehyde'} AND the alcohol that formed it, as two separate molecules (draw the alcohol once).`},
+   rule:'Acetal formation: TWO alcohol molecules react with the C=O. The first makes a hemiacetal; the second replaces its –OH, releasing H₂O. The carbon ends up with two –OR groups and no –OH.',hint:'Remove the C=O oxygen (it leaves in water) and put two –O–R groups from the alcohol on that carbon.'}},
  neutralAcid(){const n=rnd(1,5),ac=acid(n),cx=carbox(n);
   return {type:'Neutralization',cls:'Acid–base',set:'acid',reactants:[ac,T('NaOH')],cond:'',products:[cx,T('Na⁺'),T('H₂O')],draw:[0],salt:saltName(n),rev:{idx:[0],prompt:`Draw the carboxylic acid that NaOH neutralized to give ${saltName(n)}.`},
    rule:`Neutralization: the base (OH⁻) removes the acidic H from –COOH, giving a carboxylate ion (–COO⁻) and water. With Na⁺ the salt is ${saltName(n)}.`,hint:'Only the H on the –COOH oxygen is removed. That O gets a − charge (use ± Charge).'}},
@@ -439,22 +471,22 @@ const TPL={
    rule:`Amines are weak bases. The lone pair on N picks up H⁺ from HCl, making an ammonium ion (N⁺ with one more H) and Cl⁻. The salt is ${am.salt}.`,hint:'Add an H⁺ to the nitrogen: it now has four bonds and a + charge (use ± Charge on N).'}}
 };
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
-const WEIGHT={combustion:1,substitution:2,hydrogenation:3,halogenAdd:2,hydrohalogenation:3,hydration:3,dehydration:3,ox1Ald:2,ox1Acid:2,oxAldAcid:1,ox2:3,reduction:3,esterification:3,esterHydrolysis:2,saponification:2,amidation:2,amideHydrolysis:2,neutralAcid:2,neutralAmine:2};
-const SETOF={combustion:'hydrocarbon',substitution:'hydrocarbon',hydrogenation:'hydrocarbon',halogenAdd:'hydrocarbon',hydrohalogenation:'hydrocarbon',hydration:'alcohol',dehydration:'alcohol',ox1Ald:'alcohol',ox1Acid:'alcohol',oxAldAcid:'alcohol',ox2:'alcohol',reduction:'alcohol',esterification:'acid',esterHydrolysis:'acid',saponification:'acid',amidation:'acid',amideHydrolysis:'acid',neutralAcid:'acid',neutralAmine:'acid'};
+const WEIGHT={combustion:1,substitution:2,hydrogenation:3,halogenAdd:2,hydrohalogenation:3,hydration:3,dehydration:3,ox1Ald:2,ox1Acid:2,oxAldAcid:1,ox2:3,reduction:3,esterification:3,esterHydrolysis:2,saponification:2,amidation:2,amideHydrolysis:2,amideBase:2,hemiacetal:2,acetal:2,neutralAcid:2,neutralAmine:2};
+const SETOF={combustion:'hydrocarbon',substitution:'hydrocarbon',hydrogenation:'hydrocarbon',halogenAdd:'hydrocarbon',hydrohalogenation:'hydrocarbon',hydration:'alcohol',dehydration:'alcohol',ox1Ald:'alcohol',ox1Acid:'alcohol',oxAldAcid:'alcohol',ox2:'alcohol',reduction:'alcohol',esterification:'acid',esterHydrolysis:'acid',saponification:'acid',amidation:'acid',amideHydrolysis:'acid',amideBase:'acid',hemiacetal:'alcohol',acetal:'alcohol',neutralAcid:'acid',neutralAmine:'acid'};
 function genRxn(filter){for(let tries=0;tries<200;tries++){const keys=Object.keys(TPL).filter(k=>state.set==='all'||SETOF[k]===state.set);
   const pool=[];keys.forEach(k=>{for(let i=0;i<WEIGHT[k];i++)pool.push(k)});let k=pick(pool);if(k===lastKey&&Math.random()<.8)continue;
   const r=TPL[k]();r.key=k;if(!filter||filter(r)){lastKey=k;return r}}return null}
 let lastKey=null;
 
 /* ================= question building ================= */
-const SPEC=['Combustion','Halogenation (substitution)','Hydrogenation','Halogenation (addition)','Hydrohalogenation','Hydration','Dehydration','Oxidation','Reduction','Esterification','Amide formation','Hydrolysis','Saponification','Neutralization'];
-const CONF={'Hydration':['Dehydration','Hydrolysis','Hydrogenation','Hydrohalogenation'],'Dehydration':['Hydration','Hydrolysis','Oxidation','Hydrogenation'],'Hydrogenation':['Hydration','Halogenation (addition)','Hydrohalogenation','Dehydration'],'Halogenation (addition)':['Halogenation (substitution)','Hydrohalogenation','Hydrogenation','Hydration'],'Halogenation (substitution)':['Halogenation (addition)','Hydrohalogenation','Combustion','Hydrogenation'],'Hydrohalogenation':['Halogenation (addition)','Hydration','Halogenation (substitution)','Hydrogenation'],'Oxidation':['Reduction','Dehydration','Hydration','Combustion'],'Reduction':['Oxidation','Hydration','Dehydration','Hydrolysis'],'Esterification':['Hydrolysis','Saponification','Amide formation','Neutralization'],'Amide formation':['Esterification','Hydrolysis','Neutralization','Saponification'],'Hydrolysis':['Esterification','Saponification','Hydration','Amide formation'],'Saponification':['Neutralization','Esterification','Dehydration','Amide formation'],'Neutralization':['Saponification','Esterification','Hydrolysis','Oxidation'],'Combustion':['Halogenation (substitution)','Hydrogenation','Dehydration','Reduction']};
+const SPEC=['Combustion','Halogenation (substitution)','Hydrogenation','Halogenation (addition)','Hydrohalogenation','Hydration','Dehydration','Oxidation','Reduction','Esterification','Amidation','Hydrolysis','Saponification','Neutralization','Hemiacetal formation','Acetal formation'];
+const CONF={'Hydration':['Dehydration','Hydrolysis','Hydrogenation','Hydrohalogenation'],'Dehydration':['Hydration','Hydrolysis','Oxidation','Hydrogenation'],'Hydrogenation':['Hydration','Halogenation (addition)','Hydrohalogenation','Dehydration'],'Halogenation (addition)':['Halogenation (substitution)','Hydrohalogenation','Hydrogenation','Hydration'],'Halogenation (substitution)':['Halogenation (addition)','Hydrohalogenation','Combustion','Hydrogenation'],'Hydrohalogenation':['Halogenation (addition)','Hydration','Halogenation (substitution)','Hydrogenation'],'Oxidation':['Reduction','Dehydration','Hydration','Combustion'],'Reduction':['Oxidation','Hydration','Dehydration','Hydrolysis'],'Esterification':['Hydrolysis','Saponification','Amidation','Neutralization'],'Amidation':['Esterification','Hydrolysis','Neutralization','Saponification'],'Hydrolysis':['Esterification','Saponification','Hydration','Amidation'],'Saponification':['Neutralization','Esterification','Dehydration','Amidation'],'Neutralization':['Saponification','Esterification','Hydrolysis','Oxidation'],'Combustion':['Halogenation (substitution)','Hydrogenation','Dehydration','Reduction'],'Hemiacetal formation':['Acetal formation','Hydration','Esterification','Reduction'],'Acetal formation':['Hemiacetal formation','Esterification','Dehydration','Hydration']};
 const CLS=['Addition','Substitution','Elimination','Oxidation','Reduction','Condensation','Hydrolysis','Acid–base','Combustion'];
 const CLSD={Addition:'two reactants combine and atoms add across a double bond, so the C=C (or C=O) becomes a single bond.',Substitution:'one atom or group on the molecule is swapped for another.',Elimination:'a small molecule (here H₂O) is removed and a C=C double bond forms.',Oxidation:'the carbon gains bonds to oxygen and/or loses hydrogen.',Reduction:'the carbon gains hydrogen and/or loses bonds to oxygen.',Condensation:'two molecules join and a small molecule (H₂O) is released.',Hydrolysis:'water (or OH⁻) splits one molecule into two pieces.','Acid–base':'an H⁺ is transferred from an acid to a base, making a salt.',Combustion:'a hydrocarbon burns in O₂ to CO₂ and H₂O.'};
-const SPECD={'Halogenation (substitution)':'an H on an alkane is replaced by a halogen.','Hydrogenation':'H₂ adds across C=C or C≡C.','Halogenation (addition)':'X₂ (Br₂ or Cl₂) adds across C=C.','Hydrohalogenation':'HX (HCl or HBr) adds across C=C.','Hydration':'H₂O adds across C=C to make an alcohol.','Dehydration':'an alcohol loses H₂O to make an alkene.','Oxidation':'an alcohol or aldehyde gains O / loses H.','Reduction':'a C=O gains H₂ to become an alcohol.','Esterification':'acid + alcohol → ester + water.','Amide formation':'acid + amine (or NH₃) → amide + water.','Hydrolysis':'water splits an ester or amide into two parts.','Saponification':'NaOH splits an ester into a carboxylate salt and an alcohol.','Neutralization':'an acid and a base make a salt.','Combustion':'burning in O₂ gives CO₂ + H₂O.'};
+const SPECD={'Halogenation (substitution)':'an H on an alkane is replaced by a halogen.','Hydrogenation':'H₂ adds across C=C or C≡C.','Halogenation (addition)':'X₂ (Br₂ or Cl₂) adds across C=C.','Hydrohalogenation':'HX (HCl or HBr) adds across C=C.','Hydration':'H₂O adds across C=C to make an alcohol.','Dehydration':'an alcohol loses H₂O to make an alkene.','Oxidation':'an alcohol or aldehyde gains O / loses H.','Reduction':'a C=O gains H₂ to become an alcohol.','Esterification':'acid + alcohol → ester + water.','Amidation':'acid + amine (or NH₃) → amide + water.','Hydrolysis':'water splits an ester or amide into two parts.','Saponification':'NaOH splits an ester into a carboxylate salt and an alcohol.','Neutralization':'an acid and a base make a salt.','Combustion':'burning in O₂ gives CO₂ + H₂O.','Hemiacetal formation':'one alcohol adds to an aldehyde or ketone C=O.','Acetal formation':'two alcohols react with an aldehyde or ketone; H₂O is released.'};
 const organic=parts=>parts.filter(p=>p.smi);
 const namesOf=parts=>parts.filter(p=>p.smi).map(p=>p.name);
-function mcType(r){const general=Math.random()<.4;const excl=r.excl||[];
+function mcType(r){const general=!r.noClass&&Math.random()<.4;const excl=r.excl||[];
  if(general){const ans=r.cls;const pool=shuf(CLS.filter(c=>c!==ans&&!excl.includes(c)));const opts=shuf([ans,...pool.slice(0,3)]);
   return {kind:'mc',prompt:'Which general class of reaction is this?',options:opts.map(o=>({key:o,html:esc(o)})),answer:ans,
    hint:'Compare reactants and products: did something add across a double bond, swap, leave as water, gain O, gain H, split with water, or transfer H⁺?',
@@ -533,13 +565,18 @@ function addRing(){snap();let cx=W/2,cy=H/2;if(D.atoms.length){const mx=Math.max
 function setTool(t){tool=t;document.querySelectorAll('[data-tool]').forEach(b=>{const on=b.dataset.tool===t;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});updatePadHelp()}
 function setEl(e){curEl=e;document.querySelectorAll('[data-el]').forEach(b=>{const on=b.dataset.el===e;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});if(tool!=='draw'&&tool!=='swap')setTool('draw');updatePadHelp()}
 function setOrd(o){curOrder=o;document.querySelectorAll('[data-ord]').forEach(b=>{const on=Number(b.dataset.ord)===o;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)})}
-const HELP={draw:'✏️ Draw: tap empty space to place an atom, tap an atom to grow a bond, drag atom → atom to connect. Tap a bond to cycle single/double/triple.',swap:'🔁 Swap: tap an atom to change it to the selected element.',charge:'± Charge: tap an O to make O⁻, or an N to make N⁺. Tap again to remove.',move:'✋ Move: drag atoms to tidy your drawing.',erase:'⌫ Erase: tap an atom or a bond to delete it.'};
-function updatePadHelp(){const h=$('padHelp');if(h)h.textContent=HELP[tool]+(tool==='draw'||tool==='swap'?` New atoms: ${curEl}.`:'')}
-function padHTML(){const ph=matchMedia('(max-width:700px)').matches;W=ph?400:640;H=ph?400:320;return `<div class="pad"><div class="toolrow"><span class="lab">Tool</span>${[['draw','✏️ Draw'],['swap','🔁 Swap'],['charge','± Charge'],['move','✋ Move'],['erase','⌫ Erase']].map(([t,n])=>`<button type="button" class="tb" data-tool="${t}" aria-pressed="false">${n}</button>`).join('')}</div>
-<div class="toolrow"><span class="lab">Atom</span>${['C','O','N','Cl','Br'].map(e=>`<button type="button" class="tb el" data-el="${e}" aria-pressed="false">${e}</button>`).join('')}<span class="lab" style="min-width:auto;margin-left:8px">Bond</span>${[[1,'—'],[2,'═'],[3,'≡']].map(([o,n])=>`<button type="button" class="tb ord" data-ord="${o}" aria-label="${['','single','double','triple'][o]} bond" aria-pressed="false">${n}</button>`).join('')}</div>
-<div class="toolrow"><button type="button" class="tb" id="padRing">⬡ Ring</button><button type="button" class="tb" id="padClean">✨ Clean Up</button><button type="button" class="tb" id="padUndo">↶ Undo</button><button type="button" class="tb" id="padClear">🗑 Clear</button></div>
+const HELP={draw:'Tap space = new atom • tap atom = grow bond • drag atom→atom = connect • tap bond = change order',swap:'Tap an atom to change it to the selected element',charge:'Tap O for O⁻ or N for N⁺ (tap again to remove)',move:'Drag atoms to move them',erase:'Tap an atom or bond to delete it'};
+function updatePadHelp(){const h=$('padHelp');if(h)h.textContent=HELP[tool]}
+function padHTML(){const ph=matchMedia('(max-width:700px)').matches;W=ph?400:640;H=ph?400:320;
+ const seg=(cls,cap,items)=>`<div class="grp"><span class="cap">${cap}</span><div class="seg ${cls}" role="group" aria-label="${cap}">${items}</div></div>`;
+ return `<div class="pad"><div class="padbar">
+${seg('tools','Tool',[['draw','✏️','Draw'],['swap','🔁','Swap'],['charge','±','Charge'],['move','✋','Move'],['erase','⌫','Erase']].map(([t,i,n])=>`<button type="button" data-tool="${t}" aria-pressed="false" title="${n}"><span class="ic">${i}</span><span class="tx">${n}</span></button>`).join(''))}
+${seg('atoms','Atom',['C','O','N','Cl','Br'].map(e=>`<button type="button" data-el="${e}" aria-pressed="false" title="New atoms: ${e}">${e}</button>`).join(''))}
+${seg('bonds','Bond',[[1,'—'],[2,'═'],[3,'≡']].map(([o,n])=>`<button type="button" data-ord="${o}" aria-label="${['','single','double','triple'][o]} bond" title="${['','Single','Double','Triple'][o]} bond" aria-pressed="false">${n}</button>`).join(''))}
+${seg('acts','Edit',[['padRing','⬡','Ring'],['padClean','✨','Tidy'],['padUndo','↶','Undo'],['padClear','🗑','Clear']].map(([id,i,n])=>`<button type="button" id="${id}" title="${n}"><span class="ic">${i}</span><span class="tx">${n}</span></button>`).join(''))}
+</div>
 <div class="ws-wrap"><svg id="ws" viewBox="0 0 ${W} ${H}" role="application" aria-label="Drawing pad for skeletal structures" xmlns="http://www.w3.org/2000/svg"></svg></div>
-<div class="audit" id="padAudit"></div><p class="padhelp" id="padHelp"></p></div>`}
+<div class="padfoot"><p class="padhelp" id="padHelp"></p><div class="audit" id="padAudit"></div></div></div>`}
 function bindPad(){document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));document.querySelectorAll('[data-el]').forEach(b=>b.onclick=()=>setEl(b.dataset.el));document.querySelectorAll('[data-ord]').forEach(b=>b.onclick=()=>setOrd(Number(b.dataset.ord)));
  $('padRing').onclick=addRing;$('padClean').onclick=cleanUp;$('padUndo').onclick=undo;$('padClear').onclick=()=>{if(!D.atoms.length)return;snap();D.atoms=[];D.bonds=[];drawWS()};
  setTool(tool);setEl(curEl);setOrd(curOrder);
@@ -561,7 +598,7 @@ function bindPad(){document.querySelectorAll('[data-tool]').forEach(b=>b.onclick
  svg.onpointercancel=()=>{press=null;D.preview=null;drawWS()};
  drawWS()}
 function drawWS(){const svg=$('ws');if(!svg)return;const g=padGraph(),adj=adjOf(g),pos=D.atoms.map(a=>({x:a.x,y:a.y}));
- if(!D.atoms.length){svg.innerHTML=`<text x="${W/2}" y="${H/2-10}" text-anchor="middle" fill="#7a8894" font-size="19" font-weight="700">Tap here to place your first carbon.</text><text x="${W/2}" y="${H/2+20}" text-anchor="middle" fill="#7a8894" font-size="15">Then tap that atom again and again to grow a zig-zag chain.</text>`;$('padAudit').innerHTML='';return}
+ if(!D.atoms.length){svg.innerHTML=`<text x="${W/2}" y="${H/2-10}" text-anchor="middle" fill="#7a8894" font-size="19" font-weight="700">Tap here to place your first carbon.</text><text x="${W/2}" y="${H/2+20}" text-anchor="middle" fill="#7a8894" font-size="15">${W<500?'Tap it again to grow a zig-zag chain.':'Then tap that atom again and again to grow a zig-zag chain.'}</text>`;$('padAudit').innerHTML='';return}
  const lab=g.atoms.map((a,i)=>a.el!=='C'||!adj[i].length);
  const over=g.atoms.map((_,i)=>hCount(g,adj,i)<0);
  let s=bondsSVG(g,pos,lab);
@@ -686,17 +723,19 @@ const REF=[
  ['Oxidation','Oxidation','alcohol or aldehyde + [O]','1° alcohol → aldehyde → acid; 2° → ketone; 3° → no reaction','2-propanol → propanone'],
  ['Reduction','Reduction','aldehyde or ketone + H₂, Ni','C=O becomes C–OH','propanal → 1-propanol'],
  ['Esterification','Condensation','acid + alcohol, H⁺','Ester + H₂O','acetic acid + methanol → methyl ethanoate'],
- ['Amide formation','Condensation','acid + amine or NH₃, heat','Amide + H₂O','acetic acid + NH₃ → ethanamide'],
- ['Hydrolysis','Hydrolysis','ester or amide + H₂O, H⁺','Splits into acid + alcohol (or acid + ammonium ion)','methyl ethanoate → acetic acid + methanol'],
+ ['Amidation','Condensation','acid + NH₃ or 1°/2° amine, heat','Amide + H₂O','acetic acid + NH₃ → ethanamide'],
+ ['Hydrolysis','Hydrolysis','ester or amide + H₂O, H⁺','Ester → acid + alcohol. Amide in acid → acid + ammonium salt; in base → carboxylate salt + amine','methyl ethanoate → acetic acid + methanol'],
  ['Saponification','Hydrolysis','ester + NaOH','Carboxylate salt + alcohol','ethyl ethanoate → sodium ethanoate + ethanol'],
+ ['Hemiacetal formation','Addition','aldehyde/ketone + 1 alcohol, H⁺','The alcohol adds across C=O: –OH and –OR on the same carbon','propanal + ethanol → hemiacetal'],
+ ['Acetal formation','Condensation','aldehyde/ketone + 2 alcohol, H⁺','Two –OR groups on the carbon; H₂O released','propanone + 2 methanol → 2,2-dimethoxypropane'],
  ['Neutralization','Acid–base','acid + NaOH, or amine + HCl','Carboxylate salt + H₂O, or ammonium salt','CH₃NH₂ + HCl → CH₃NH₃⁺Cl⁻'],
  ['Combustion','Combustion','hydrocarbon + O₂','CO₂ + H₂O + energy','CH₄ + 2 O₂ → CO₂ + 2 H₂O']];
-function renderRef(){$('refBody').innerHTML=`<div class="table-scroll"><table class="ref-table"><thead><tr><th>Reaction</th><th>Class</th><th>Reagents</th><th>What happens</th><th>Example</th></tr></thead><tbody>${REF.map(r=>`<tr>${r.map((c,i)=>`<td${i===0?' class="g"':''}>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+function renderRef(){$('refBody').innerHTML=`<div class="refcards">${REF.map(r=>`<div class="refcard"><div class="rh"><b>${esc(r[0])}</b><span class="rc">${esc(r[1])}</span></div><div class="rr">${esc(r[2])}</div><div>${esc(r[3])}</div><div class="rx">e.g. ${esc(r[4])}</div></div>`).join('')}</div>
 <p class="footer-note"><b>Oxidation ladder:</b> 1° alcohol ⇄ aldehyde → carboxylic acid; 2° alcohol ⇄ ketone. Reduction runs the arrows backward.<br><b>Markovnikov:</b> “the rich get richer”: H goes to the C=C carbon that already has more H atoms.<br><b>Condensation vs hydrolysis:</b> condensation releases water to join two molecules; hydrolysis uses water to split one apart.</p>`}
 
-const UIKEY='itsdrdan-orgrxn-ui-v1';let ui={};try{ui=JSON.parse(localStorage.getItem(UIKEY)||'{}')}catch(e){}
+const UIKEY='itsdrdan-orgrxn-ui-v2';let ui={};try{ui=JSON.parse(localStorage.getItem(UIKEY)||'{}')}catch(e){}
 const saveUI=()=>{ui.mode=state.mode;ui.style=state.style;ui.set=state.set;try{localStorage.setItem(UIKEY,JSON.stringify(ui))}catch(e){}};
-(function(){[['howTo',false],['refDetails',false],['journey',false],['videoDetails',false]].forEach(([id,def])=>{const el=$(id);el.open=ui[id]!==undefined?ui[id]:def;el.addEventListener('toggle',()=>{ui[id]=el.open;saveUI()})});
+(function(){const phone=matchMedia('(max-width:1000px)').matches;[['howTo',false],['refDetails',!phone],['journey',!phone],['videoDetails',!phone]].forEach(([id,def])=>{const el=$(id);el.open=ui[id]!==undefined?ui[id]:def;el.addEventListener('toggle',()=>{ui[id]=el.open;saveUI()})});
  if(['skeletal','condensed','mixed'].includes(ui.style))state.style=ui.style;if(['all','hydrocarbon','alcohol','acid'].includes(ui.set))state.set=ui.set;if(MODES.some(m=>m.id===ui.mode))state.mode=ui.mode;
  $('styleSel').value=state.style;$('setSel').value=state.set;
  $('styleSel').onchange=e=>{state.style=e.target.value;saveUI();state.qStyle=state.style==='mixed'?(Math.random()<.5?'skeletal':'condensed'):state.style;const keep=state.q&&state.q.steps[state.step].kind==='draw';if(keep){const snapD=JSON.stringify([D.atoms,D.bonds,D.nid]);renderStep();const [a,b,n]=JSON.parse(snapD);D.atoms=a;D.bonds=b;D.nid=n;drawWS()}else renderStep()};

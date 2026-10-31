@@ -122,6 +122,8 @@ details.directions .tip{margin:8px 18px 16px;background:#fff6d6;border-radius:12
 .tbtn{min-height:48px;padding:9px 13px;border-radius:10px;border:2px solid #71899c;background:#fff;box-shadow:0 2px 3px #16334b0c;font-weight:800;font-size:15px;cursor:pointer;color:var(--ink)}
 .tbtn:hover{background:#f6fafc}
 .tbtn.on{background:#dceef0;border-color:#327780;box-shadow:0 2px 0 #327780}
+.ws-wrap{position:relative}.selbar{display:none}.selbar.show{display:flex;position:absolute;left:8px;right:8px;top:8px;z-index:2;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 8px;background:#eaf5fdee;backdrop-filter:blur(2px);border:2px solid #9fd0f2;border-radius:13px;padding:6px 10px;font-size:14px;box-shadow:0 4px 12px #2a5a7a1a}
+.selbar.bottom{top:auto;bottom:8px}.selbtns{display:flex;gap:8px}.selbtns .tbtn{min-height:40px;padding:5px 11px;font-size:14px}
 .tbtn.clean{background:#fff5da;border-color:#8b6d33;display:inline-flex;align-items:center;gap:6px}.tbtn.clean svg{width:22px;height:22px;flex:none}
 .audit span{background:#f1ece2;border-radius:999px;padding:4px 10px}
 .audit .over{background:#fdeeed;color:#a2382f}
@@ -178,6 +180,7 @@ details.directions .tip{margin:8px 18px 16px;background:#fff6d6;border-radius:12
  .btn-row{grid-template-columns:1fr 1fr;position:sticky;bottom:0;z-index:5;background:linear-gradient(#fff0,#fffcf6 22%);padding:10px 0 8px;margin-bottom:0}.btn-row .primary{grid-column:1/-1}
  #nextBtn{flex:1 1 100%}
  body.drawing .btn-row{position:static;background:none}
+ .selhint{display:none}.selbar.show{flex-wrap:nowrap;padding:5px 8px}.selbtns .tbtn{min-height:38px;padding:4px 9px}
  .toolpanel{padding:10px;gap:7px}.tbtn{padding:8px 11px;font-size:14px;min-height:46px}
  .padbar{gap:6px}.grp{width:100%;flex-direction:row;align-items:center;gap:6px}.grp .cap{width:44px;flex:0 0 44px;padding:0;font-size:10px}
  .seg{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:1fr}.seg button{padding:4px 2px;min-width:0;font-size:14px}.seg .tx{display:inline;font-size:11px}.seg.tools button,.seg.acts button{flex-direction:column;gap:0}
@@ -265,6 +268,7 @@ details.directions{background:linear-gradient(120deg,#f7f3ff,#eef7ff)}
 <details class="directions" id="howTo"><summary>📘 How to use this game <span class="sum-hint">Tap to open</span></summary>
 <ol><li><strong>Pick a mode.</strong> Identify the Reaction, Draw the Product, Draw the Reactant, or Full Reaction (all three steps).</li>
 <li><strong>Draw on the pad.</strong> With ✏️ Draw on, tap empty space to place an atom, tap an atom to grow a new bond from it, or drag from one atom to another to connect them. Tap a bond to cycle single → double → triple.</li>
+<li><strong>🪢 Lasso:</strong> drag a loop around part of your drawing to select it, then drag it to a new spot or delete it in one tap.</li>
 <li><strong>Pick the element first</strong> (C, O, N, Cl, Br) for new atoms. Use 🔁 Swap to change an atom you already drew, and ± Charge for O⁻ or N⁺ ions.</li>
 <li><strong>Hydrogens are automatic.</strong> Every corner and line end is a carbon. Hydrogens fill in to give C four bonds, N three and O two.</li>
 <li><strong>Two products?</strong> Draw them as two separate molecules in the same box. You don't need to draw water or inorganic ions such as Na⁺ or Cl⁻.</li>
@@ -696,10 +700,12 @@ function arrowHTML(cond){const parts=String(cond||'').split(/,\s*/).filter(Boole
 
 /* ================= drawing pad ================= */
 let W=640,H=320;const CBL=56,MARG=26;
-const D={atoms:[],bonds:[],nid:1,hist:[],preview:null};let tool='draw',curEl='C',curOrder=1;
+const D={atoms:[],bonds:[],nid:1,hist:[],preview:null,lasso:null};const SEL=new Set();
+function inPoly(p,poly){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a.y>p.y)!==(b.y>p.y)&&p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x)c=!c}return c}
+function deleteSel(){if(!SEL.size)return;snap();const n=SEL.size;D.atoms=D.atoms.filter(a=>!SEL.has(a.id));D.bonds=D.bonds.filter(b=>!SEL.has(b.a)&&!SEL.has(b.b));SEL.clear();drawWS();toast(`Deleted ${n} atom${n>1?'s':''}`)}let tool='draw',curEl='C',curOrder=1;
 const byId=id=>D.atoms.find(a=>a.id===id);
 function snap(){D.hist.push(JSON.stringify([D.atoms,D.bonds,D.nid]));if(D.hist.length>80)D.hist.shift()}
-function undo(){const s=D.hist.pop();if(!s)return;const [a,b,n]=JSON.parse(s);D.atoms=a;D.bonds=b;D.nid=n;drawWS()}
+function undo(){const s=D.hist.pop();if(!s)return;SEL.clear();const [a,b,n]=JSON.parse(s);D.atoms=a;D.bonds=b;D.nid=n;drawWS()}
 function padGraph(){const idx={};D.atoms.forEach((a,i)=>idx[a.id]=i);return {atoms:D.atoms.map(a=>({el:a.el,charge:a.charge||0})),bonds:D.bonds.map(b=>({a:idx[b.a],b:idx[b.b],o:b.o}))}}
 function svgPt(e){const s=$('ws'),p=s.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(s.getScreenCTM().inverse())}
 function atomAt(p,r,excl){let best=null,bd=r||24;D.atoms.forEach(a=>{if(a.id===excl)return;const d=Math.hypot(a.x-p.x,a.y-p.y);if(d<bd){bd=d;best=a}});return best}
@@ -733,29 +739,37 @@ function addRing(){snap();let cx=W/2,cy=H/2;if(D.atoms.length){const mx=Math.max
 function syncPadButtons(){document.querySelectorAll('[data-tool]').forEach(b=>{const on=b.dataset.tool===tool;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
  document.querySelectorAll('[data-ord]').forEach(b=>{const on=tool==='draw'&&Number(b.dataset.ord)===curOrder;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
  document.querySelectorAll('[data-el]').forEach(b=>{const on=b.dataset.el===curEl;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});updatePadHelp()}
-function setTool(t){tool=t;syncPadButtons()}
-function setEl(e){curEl=e;if(tool!=='draw'&&tool!=='swap')tool='draw';syncPadButtons()}
-function setOrd(o){curOrder=o;tool='draw';syncPadButtons()}
-const HELP={draw:'Bond tool: tap empty space to add an atom, tap an atom to grow a bond from it, or drag from one atom to another to connect them. Tap a bond to change single/double/triple.',swap:'Swap atom: tap an atom to change it to the element selected in the top row.',charge:'Charge: tap an O to make O⁻ or an N to make N⁺. Tap again to remove it.',move:'Move: drag atoms to tidy your drawing.',erase:'Erase: tap an atom or a bond to delete it.'};
+function setTool(t){if(t==='erase'&&SEL.size){deleteSel();return}tool=t;if(t!=='lasso'&&t!=='move')SEL.clear();syncPadButtons();drawWS()}
+function setEl(e){curEl=e;SEL.clear();if(tool!=='draw'&&tool!=='swap')tool='draw';syncPadButtons()}
+function setOrd(o){curOrder=o;tool='draw';SEL.clear();syncPadButtons();drawWS()}
+const HELP={draw:'Bond tool: tap empty space to add an atom, tap an atom to grow a bond from it, or drag from one atom to another to connect them. Tap a bond to change single/double/triple.',swap:'Swap atom: tap an atom to change it to the element selected in the top row.',charge:'Charge: tap an O to make O⁻ or an N to make N⁺. Tap again to remove it.',move:'Move: drag atoms to tidy your drawing.',lasso:'Lasso: drag a loop around part of your drawing to select it. Then drag any selected atom to move the whole group, or delete the group. Tap empty space to deselect.',erase:'Erase: tap an atom or a bond to delete it.'};
 function updatePadHelp(){const h=$('padHelp');if(h)h.textContent=HELP[tool]}
 function padHTML(){const ph=matchMedia('(max-width:700px)').matches;W=ph?400:640;H=ph?400:320;
  const B=(attr,label,extra)=>`<button type="button" class="tbtn ${extra||''}" ${attr} aria-pressed="false">${label}</button>`;
  const broom='<svg viewBox="0 0 30 30" aria-hidden="true"><path d="M21 3L12 18" stroke="#907451" stroke-width="4" stroke-linecap="round"/><path d="M9 15L18 20L15 28L3 21Z" fill="#f6cd68" stroke="#c18d36" stroke-width="1.5"/><path d="M10 18L6 22M13 20L9 24M15 21L12 26" stroke="#c18d36" stroke-width="1.3"/></svg>';
  return `<div class="pad"><h3 class="padtitle">Your line-angle drawing</h3>
 <div class="toolpanel">${[['C','+ Carbon'],['O','+ O'],['N','+ N'],['Cl','+ Cl'],['Br','+ Br']].map(([e,n])=>B(`data-el="${e}"`,n)).join('')}</div>
-<div class="toolpanel">${B('data-ord="1"','— Single')}${B('data-ord="2"','═ Double')}${B('data-ord="3"','≡ Triple')}${B('data-tool="swap"','🔁 Swap atom')}${B('data-tool="charge"','± Charge')}${B('data-tool="move"','✋ Move')}${B('data-tool="erase"','⌫ Erase')}
+<div class="toolpanel">${B('data-ord="1"','— Single')}${B('data-ord="2"','═ Double')}${B('data-ord="3"','≡ Triple')}${B('data-tool="swap"','🔁 Swap atom')}${B('data-tool="charge"','± Charge')}${B('data-tool="move"','✋ Move')}${B('data-tool="lasso"','🪢 Lasso')}${B('data-tool="erase"','⌫ Erase')}
 <button type="button" class="tbtn clean" id="padClean">${broom}Clean Up</button>${B('id="padUndo"','↶ Undo')}${B('id="padClear"','Clear')}${B('id="padRing"','⬡ Six-carbon ring')}</div>
-<div class="ws-wrap"><svg id="ws" viewBox="0 0 ${W} ${H}" role="application" aria-label="Drawing pad for skeletal structures" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div class="ws-wrap"><div class="selbar" id="selBar" aria-live="polite"></div><svg id="ws" viewBox="0 0 ${W} ${H}" role="application" aria-label="Drawing pad for skeletal structures" xmlns="http://www.w3.org/2000/svg"></svg></div>
 <div class="audit" id="padAudit"></div><p class="padhelp" id="padHelp"></p></div>`}
 function bindPad(){document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));document.querySelectorAll('[data-el]').forEach(b=>b.onclick=()=>setEl(b.dataset.el));document.querySelectorAll('[data-ord]').forEach(b=>b.onclick=()=>setOrd(Number(b.dataset.ord)));
- $('padRing').onclick=addRing;$('padClean').onclick=cleanUp;$('padUndo').onclick=undo;$('padClear').onclick=()=>{if(!D.atoms.length)return;snap();D.atoms=[];D.bonds=[];drawWS()};
+ $('padRing').onclick=addRing;$('padClean').onclick=cleanUp;$('padUndo').onclick=undo;$('padClear').onclick=()=>{if(!D.atoms.length)return;snap();D.atoms=[];D.bonds=[];SEL.clear();drawWS()};
  syncPadButtons();
  const svg=$('ws');let press=null;
- svg.onpointerdown=e=>{if(e.button>0)return;const p=svgPt(e);const a=atomAt(p);press={p,atom:a,bond:a?-1:bondAt(p),moved:false,snapped:false};if(a){press.ox=a.x;press.oy=a.y}svg.setPointerCapture(e.pointerId);e.preventDefault()};
- svg.onpointermove=e=>{if(!press)return;const p=svgPt(e);if(Math.hypot(p.x-press.p.x,p.y-press.p.y)>9)press.moved=true;if(!press.moved||!press.atom)return;
+ svg.onpointerdown=e=>{if(e.button>0)return;const p=svgPt(e);const a=atomAt(p);press={p,atom:a,bond:a?-1:bondAt(p),moved:false,snapped:false};if(a){press.ox=a.x;press.oy=a.y}
+  if((tool==='lasso'||tool==='move')&&a&&SEL.has(a.id)){press.group=D.atoms.filter(x=>SEL.has(x.id)).map(x=>({a:x,ox:x.x,oy:x.y}))}else if(tool==='lasso'){press.lasso=true;D.lasso=[p]}svg.setPointerCapture(e.pointerId);e.preventDefault()};
+ svg.onpointermove=e=>{if(!press)return;const p=svgPt(e);if(Math.hypot(p.x-press.p.x,p.y-press.p.y)>9)press.moved=true;
+  if(press.group){if(!press.moved)return;if(!press.snapped){snap();press.snapped=true}let dx=p.x-press.p.x,dy=p.y-press.p.y;press.group.forEach(q=>{dx=Math.max(MARG-q.ox,Math.min(W-MARG-q.ox,dx));dy=Math.max(MARG-q.oy,Math.min(H-MARG-q.oy,dy))});press.group.forEach(q=>{q.a.x=q.ox+dx;q.a.y=q.oy+dy});drawWS();return}
+  if(press.lasso){const l=D.lasso,last=l[l.length-1];if(Math.hypot(p.x-last.x,p.y-last.y)>4){l.push(p);drawWS()}return}if(!press.moved||!press.atom)return;
   if(tool==='move'){if(!press.snapped){snap();press.snapped=true}press.atom.x=clampX(press.ox+p.x-press.p.x);press.atom.y=clampY(press.oy+p.y-press.p.y);drawWS()}
   else if(tool==='draw'){D.preview={x1:press.atom.x,y1:press.atom.y,x2:p.x,y2:p.y};drawWS()}};
  svg.onpointerup=e=>{if(!press)return;const pr=press;press=null;D.preview=null;if(svg.hasPointerCapture(e.pointerId))svg.releasePointerCapture(e.pointerId);const p=svgPt(e);
+  if(pr.group){if(!pr.moved&&tool==='move'){}drawWS();return}
+  if(tool==='lasso'){const l=D.lasso||[];D.lasso=null;
+   if(pr.moved&&l.length>=3){SEL.clear();D.atoms.forEach(a=>{if(inPoly(a,l))SEL.add(a.id)});if(!SEL.size)toast('Nothing inside the loop. Circle the atoms you want.')}
+   else if(pr.atom){SEL.has(pr.atom.id)?SEL.delete(pr.atom.id):SEL.add(pr.atom.id)}else SEL.clear();
+   drawWS();return}
   if(tool==='move'){drawWS();return}
   if(tool==='draw'){
    if(pr.atom&&!pr.moved){growFrom(pr.atom);return}
@@ -765,18 +779,26 @@ function bindPad(){document.querySelectorAll('[data-tool]').forEach(b=>b.onclick
   if(tool==='swap'&&pr.atom){snap();pr.atom.el=curEl;pr.atom.charge=0;drawWS();return}
   if(tool==='charge'&&pr.atom){const a=pr.atom;if(a.el==='O'){snap();a.charge=a.charge?0:-1}else if(a.el==='N'){snap();a.charge=a.charge?0:1}else{toast('Charges here: O⁻ or N⁺');return}drawWS();return}
   if(tool==='erase'){if(pr.atom){snap();D.atoms=D.atoms.filter(a=>a.id!==pr.atom.id);D.bonds=D.bonds.filter(b=>b.a!==pr.atom.id&&b.b!==pr.atom.id)}else if(pr.bond>=0){snap();D.bonds.splice(pr.bond,1)}drawWS()}};
- svg.onpointercancel=()=>{press=null;D.preview=null;drawWS()};
+ svg.onpointercancel=()=>{press=null;D.preview=null;D.lasso=null;drawWS()};
  drawWS()}
+function updateSelBar(){const bar=$('selBar');if(!bar)return;[...SEL].forEach(id=>{if(!byId(id))SEL.delete(id)});
+ if(!SEL.size){bar.className='selbar';bar.innerHTML='';return}
+ const ys=D.atoms.filter(x=>SEL.has(x.id)).map(x=>x.y),cy=ys.reduce((u,v)=>u+v,0)/ys.length;
+ bar.className='selbar show'+(cy<H/2?' bottom':'');bar.innerHTML=`<span>🪢 <b>${SEL.size} selected</b><span class="selhint">, drag the group to move it</span></span><span class="selbtns"><button type="button" class="tbtn" id="selDel">🗑 Delete</button><button type="button" class="tbtn" id="selClr">✕ Deselect</button></span>`;
+ $('selDel').onclick=deleteSel;$('selClr').onclick=()=>{SEL.clear();drawWS()}}
 function drawWS(){const svg=$('ws');if(!svg)return;const g=padGraph(),adj=adjOf(g),pos=D.atoms.map(a=>({x:a.x,y:a.y}));
- if(!D.atoms.length){svg.innerHTML=`<text x="${W/2}" y="${H/2-10}" text-anchor="middle" fill="#7a8894" font-size="19" font-weight="700">Tap here to place your first carbon.</text><text x="${W/2}" y="${H/2+20}" text-anchor="middle" fill="#7a8894" font-size="15">${W<500?'Tap it again to grow a zig-zag chain.':'Then tap that atom again and again to grow a zig-zag chain.'}</text>`;$('padAudit').innerHTML='';return}
+ if(!D.atoms.length){SEL.clear();updateSelBar();svg.innerHTML=`<text x="${W/2}" y="${H/2-10}" text-anchor="middle" fill="#7a8894" font-size="19" font-weight="700">Tap here to place your first carbon.</text><text x="${W/2}" y="${H/2+20}" text-anchor="middle" fill="#7a8894" font-size="15">${W<500?'Tap it again to grow a zig-zag chain.':'Then tap that atom again and again to grow a zig-zag chain.'}</text>`;$('padAudit').innerHTML='';return}
  const lab=g.atoms.map((a,i)=>a.el!=='C'||!adj[i].length);
  const over=g.atoms.map((_,i)=>hCount(g,adj,i)<0);
- let s=bondsSVG(g,pos,lab);
+ let s='';D.bonds.forEach(b=>{if(SEL.has(b.a)&&SEL.has(b.b)){const A=byId(b.a),B=byId(b.b);s+=`<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#9fd0f2" stroke-width="14" stroke-linecap="round" opacity=".75"/>`}});
+ D.atoms.forEach(a=>{if(SEL.has(a.id))s+=`<circle cx="${a.x}" cy="${a.y}" r="15" fill="#d6ecfb" stroke="#3b8ccb" stroke-width="2"/>`});
+ s+=bondsSVG(g,pos,lab);
  D.bonds.forEach(b=>{const A=byId(b.a),B=byId(b.b);s+=`<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="transparent" stroke-width="20"/>`});
+ if(D.lasso&&D.lasso.length>1)s+=`<polygon points="${D.lasso.map(q=>q.x.toFixed(1)+','+q.y.toFixed(1)).join(' ')}" fill="#4a9fd61f" stroke="#3b8ccb" stroke-width="2" stroke-dasharray="7 5" stroke-linejoin="round"/>`;
  if(D.preview){const q=D.preview;s+=`<line x1="${q.x1}" y1="${q.y1}" x2="${q.x2}" y2="${q.y2}" stroke="#4a9fd6" stroke-width="3" stroke-dasharray="6 5"/>`}
  g.atoms.forEach((a,i)=>{const p=pos[i];if(over[i])s+=`<circle cx="${p.x}" cy="${p.y}" r="17" fill="#fdeeed" stroke="#d9776f" stroke-width="2"/>`;
   if(a.el==='C'&&adj[i].length)s+=`<circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#9fb3c2"/>`;else s+=atomLabel(g,adj,pos,i,true)});
- svg.innerHTML=s;
+ svg.innerHTML=s;updateSelBar();
  const cs=comps(g);$('padAudit').innerHTML=`<span>Your drawing: <b>${cs.map(c=>fHTML(formula(c).text)).join(' + ')}</b></span><span>${cs.length} molecule${cs.length>1?'s':''}</span>`+
   g.atoms.map((a,i)=>over[i]?`<span class="over">${a.el}${a.charge?(a.charge>0?'⁺':'⁻'):''} has too many bonds (max ${valence(a.el,a.charge)})</span>`:'').join('')}
 
@@ -856,7 +878,7 @@ function renderStep(fresh){const q=state.q,st=q.steps[state.step];state.selected
  $('questionArea').innerHTML=html;
  if(st.kind==='name'){const ni=$('nameIn');ni.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();check()}});if(!fresh&&!matchMedia('(max-width:700px)').matches)ni.focus()}
  if(st.kind==='mc')$('questionArea').querySelectorAll('.option').forEach(b=>b.onclick=()=>{if(state.stepDone)return;state.selected=b.dataset.key;$('questionArea').querySelectorAll('.option').forEach(x=>{const on=x===b;x.classList.toggle('selected',on);x.classList.remove('wrong');x.setAttribute('aria-pressed',on)})});
- else if(st.kind==='draw'){D.atoms=[];D.bonds=[];D.hist=[];D.preview=null;bindPad()}
+ else if(st.kind==='draw'){D.atoms=[];D.bonds=[];D.hist=[];D.preview=null;D.lasso=null;SEL.clear();bindPad()}
  document.body.classList.toggle('drawing',st.kind==='draw');
  ['checkBtn','hintBtn','showBtn'].forEach(id=>$(id).disabled=false);updateStats()}
 function updateStats(){[['correct',state.correct],['streak',state.streak],['assisted',state.assisted]].forEach(([id,v])=>{const el=$(id);if(el.textContent!==String(v)){el.textContent=v;const t=el.parentElement;t.classList.remove('pop');void t.offsetWidth;t.classList.add('pop')}})}
@@ -922,6 +944,7 @@ const saveUI=()=>{ui.mode=state.mode;ui.style=state.style;ui.set=state.set;try{l
  document.querySelectorAll('.sp-btn').forEach(b=>b.onclick=()=>{if(b.dataset.style===state.style)return;applyStyle(b.dataset.style)});
  function applyStyle(v){state.style=v;markStyle();saveUI();state.qStyle=state.style==='mixed'?pick(['skeletal','condensed','expanded']):state.style;const keep=state.q&&state.q.steps[state.step].kind==='draw';const nameV=$('nameIn')?$('nameIn').value:'';if(state.stepDone){toast('Style updated for the next question');return}if(keep){const snapD=JSON.stringify([D.atoms,D.bonds,D.nid]);renderStep();const [a,b,n]=JSON.parse(snapD);D.atoms=a;D.bonds=b;D.nid=n;drawWS()}else{renderStep();if($('nameIn'))$('nameIn').value=nameV}}
  $('setSel').onchange=e=>{state.set=e.target.value;saveUI();nextQ()}})();
+document.addEventListener('keydown',e=>{if(!SEL.size)return;const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'))return;if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteSel()}else if(e.key==='Escape'){SEL.clear();drawWS()}});
 $('checkBtn').onclick=check;$('hintBtn').onclick=hint;$('showBtn').onclick=show;$('nextBtn').onclick=nextQ;
 {const rb=$('journeyReset');let armed=0;rb.onclick=()=>{if(!armed){armed=setTimeout(()=>{armed=0;rb.textContent='Reset progress'},4000);rb.textContent='Tap again to confirm reset';return}clearTimeout(armed);armed=0;rb.textContent='Reset progress';journey=jBlank();jSave();renderJourney()}}
 const vd=$('videoDetails'),pl=$('plPlayer');const loadPl=()=>{if(vd.open&&!pl.src)pl.src='https://www.youtube.com/embed/videoseries?list=PLEaxsqCAZKoCKsxdsJLMbZTqSuBQF2z2f&rel=0'};vd.addEventListener('toggle',loadPl);loadPl();

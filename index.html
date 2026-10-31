@@ -245,6 +245,13 @@ details.directions{background:linear-gradient(120deg,#f7f3ff,#eef7ff)}
 .toolpanel{background:linear-gradient(180deg,#f3f8fb,#ecf3f7)}
 .stylepick{box-shadow:0 4px 12px #2a5a7a0d}
 @media(max-width:700px){.hero{padding:12px 14px 26px}.hero h1{font-size:30px}.hero-logo{width:66px;flex-basis:66px}.stat{min-width:0;flex:1}.score{width:100%}.score .stat{flex:1}.mode-title{font-size:24px}}
+.vidcard{background:linear-gradient(120deg,#fff7ef,#fdf0f4);border:1px solid #f1d9cf;border-radius:14px;padding:9px 12px;margin:2px 0 10px}
+.vidtag{font-size:11.5px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;color:#c0645a}
+.vidtitle{font-weight:900;font-size:15.5px;line-height:1.25;margin:2px 0}
+.vidnote{font-size:13px;color:var(--muted)}
+.vidmore{display:grid;gap:6px;margin-top:10px}.vidmore-h{font-size:12px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.vidalt{text-align:left;border:1px solid #e3dccd;background:#fff;border-radius:12px;padding:7px 10px;font-weight:800;font-size:14px;cursor:pointer}.vidalt:hover{background:#f6fafc;border-color:#9bc3e0}.vidalt small{display:block;font-weight:600;color:var(--muted);font-size:12px}
+.linkbtn{border:0;background:none;padding:0;color:#2f7fbf;font-weight:800;cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-size:inherit}
 </style></head>
 <body>
 <div class="celebrate" id="celebrate"></div><div class="toast" id="toast" role="status"></div>
@@ -290,7 +297,7 @@ details.directions{background:linear-gradient(120deg,#f7f3ff,#eef7ff)}
 <p class="xp-note">Earn 10 XP for each independent answer (+2 per streak step, up to +10), 10 bonus XP for a Full Reaction, and 2 XP for a reveal. Saved in this browser only.</p>
 <div class="mode-xp" id="modeXp"></div><div class="jbadges" id="jbadges"></div><button class="journey-reset" id="journeyReset" type="button">Reset progress</button></div></details>
 <details class="card collapsible" id="refDetails"><summary>🧠 Reaction reference</summary><div class="body" id="refBody"></div></details>
-<details class="card collapsible" id="videoDetails"><summary>🎥 Learn with Dr. Dan</summary><div class="body"><p class="footer-note">CHEM 3B video playlist. Try the problem first, then pause a video to practice.</p><div class="video-wrap"><iframe id="plPlayer" title="Dr. Dan CHEM 3B playlist" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><p class="footer-note"><a href="https://www.youtube.com/playlist?list=PLEaxsqCAZKoCKsxdsJLMbZTqSuBQF2z2f" target="_blank" rel="noopener">Open the playlist on YouTube ↗</a></p></div></details>
+<details class="card collapsible" id="videoDetails"><summary>🎥 Learn with Dr. Dan</summary><div class="body"><div id="vidCard" class="vidcard"></div><div class="video-wrap"><iframe id="plPlayer" title="Dr. Dan video for this question" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><div id="vidMore" class="vidmore"></div><p class="footer-note"><button type="button" class="linkbtn" id="vidPlaylist">📺 Browse the whole CHEM 3B playlist</button> · <a href="https://www.youtube.com/playlist?list=PLEaxsqCAZKoCKsxdsJLMbZTqSuBQF2z2f" target="_blank" rel="noopener">Open on YouTube ↗</a></p></div></details>
 </div>
 <p class="footer-note">Reactions follow the CHEM 3B organic chapters (alkanes through amides). Major products are shown; cis/trans isomers are not distinguished. All questions and structures are generated for this game.</p>
 </div>
@@ -865,7 +872,7 @@ function fb(kind,html){const f=$('feedback');f.className='feedback '+kind;f.inne
 function nextQ(){let q=null;for(let i=0;i<5&&!q;i++){try{q=buildQuestion(state.mode)}catch(e){console.error(e)}}
  state.q=q;state.step=0;state.assistedQ=false;state.done=false;state.qStyle=state.style==='mixed'?pick(['skeletal','condensed','expanded']):state.style;
  $('modeTitle').textContent=MODES.find(m=>m.id===state.mode).title;renderStep(true)}
-function renderStep(fresh){const q=state.q,st=q.steps[state.step];state.selected=null;state.stepDone=false;
+function renderStep(fresh){const q=state.q,st=q.steps[state.step];state.selected=null;state.stepDone=false;setTimeout(()=>{try{updateVideo()}catch(e){console.error(e)}},0);
  $('hintBox').className='hintbox';$('hintBox').innerHTML='';fb('','');
  $('stepChips').innerHTML=q.steps.length>1?q.steps.map((s,i)=>`<span class="stepchip ${i<state.step?'done':i===state.step?'now':''}">${i<state.step?'✓ ':''}${i+1}. ${s.label}</span>`).join(''):'';
  let html='';
@@ -894,7 +901,7 @@ function stepSolved(revealed,note){const q=state.q,st=q.steps[state.step];state.
  const saltNote=last&&q.r.salt?` <i>The salt formed is ${esc(q.r.salt)}.</i>`:'';
  if(!last){fb('good',(revealed?'👀 ':'✅ Correct! ')+st.why+extra+`<div><button type="button" class="action primary contBtn" id="contBtn">Continue to step ${state.step+2} →</button></div>`);$('contBtn').onclick=()=>{state.step++;renderStep();$('practice').scrollIntoView({behavior:'smooth',block:'start'})};return}
  state.done=true;
- if(state.assistedQ){state.assisted++;state.streak=0;fb('good','👀 '+st.why+saltNote+extra+fullRx+'<br><small>Assisted: this question earns no point. Try the next one on your own.</small>');awardXP(true)}
+ if(state.assistedQ){state.assisted++;state.streak=0;fb('good','👀 '+st.why+saltNote+extra+fullRx+'<br><small>Assisted: this question earns no point. Try the next one on your own.</small><div style="margin-top:6px"><button type="button" class="linkbtn" id="fbVid">🎥 Review this with Dr. Dan’s video</button></div>');if($('fbVid'))$('fbVid').onclick=openVideo;awardXP(true)}
  else{state.correct++;state.streak++;confetti();fb('good','✅ Correct! '+st.why+saltNote+extra+fullRx);awardXP(false)}
  updateStats()}
 function check(){if(state.stepDone)return;const st=state.q.steps[state.step];
@@ -909,7 +916,8 @@ function hint(){if(state.stepDone)return;const q=state.q,st=q.steps[state.step];
  if(st.kind==='draw'&&st.hintShow==='re')h+=`<div style="margin-top:6px">Here are the reactant structures:</div>${rxnHTML(q.r,{re:'struct',pr:'hidden'},state.qStyle)}`;
  if(st.kind==='draw'&&st.hintShow==='pr')h+=`<div style="margin-top:6px">Here is the product structure:</div>${rxnHTML(q.r,{re:'name',pr:'struct',hideIdx:st.view.hideIdx},state.qStyle)}`;
  if(st.kind==='name'&&st.view.pr==='hidden'&&state.mode==='name')h+=`<div style="margin-top:6px">${esc(r_hint(q.r))}</div>`;
- $('hintBox').innerHTML=h;$('hintBox').className='hintbox show'}
+ const vv=videosFor()[0];if(vv)h+=`<div style="margin-top:8px"><button type="button" class="linkbtn" id="hintVid">🎥 Stuck? Watch Dr. Dan explain this (${mmss(vv.t)}, ${esc(vv.note||'video')})</button></div>`;
+ $('hintBox').innerHTML=h;$('hintBox').className='hintbox show';if($('hintVid'))$('hintVid').onclick=openVideo}
 const r_hint=r=>'Reaction clue: '+r.hint;
 function show(){if(state.stepDone)return;const st=state.q.steps[state.step];if(st.kind==='mc')state.selected=st.answer;stepSolved(true)}
 function confetti(){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const box=$('celebrate'),cols=['#ff7d73','#70b7e8','#8fd8c8','#f7c968','#b9a3e6','#f2a8c4'];for(let i=0;i<55;i++){const p=document.createElement('i');p.className='confetti';p.style.left=Math.random()*100+'vw';p.style.top='-20px';p.style.background=cols[i%6];p.style.animationDelay=Math.random()*.5+'s';box.appendChild(p);setTimeout(()=>p.remove(),3600)}}
@@ -947,7 +955,50 @@ const saveUI=()=>{ui.mode=state.mode;ui.style=state.style;ui.set=state.set;try{l
 document.addEventListener('keydown',e=>{if(!SEL.size)return;const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'))return;if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteSel()}else if(e.key==='Escape'){SEL.clear();drawWS()}});
 $('checkBtn').onclick=check;$('hintBtn').onclick=hint;$('showBtn').onclick=show;$('nextBtn').onclick=nextQ;
 {const rb=$('journeyReset');let armed=0;rb.onclick=()=>{if(!armed){armed=setTimeout(()=>{armed=0;rb.textContent='Reset progress'},4000);rb.textContent='Tap again to confirm reset';return}clearTimeout(armed);armed=0;rb.textContent='Reset progress';journey=jBlank();jSave();renderJourney()}}
-const vd=$('videoDetails'),pl=$('plPlayer');const loadPl=()=>{if(vd.open&&!pl.src)pl.src='https://www.youtube.com/embed/videoseries?list=PLEaxsqCAZKoCKsxdsJLMbZTqSuBQF2z2f&rel=0'};vd.addEventListener('toggle',loadPl);loadPl();
+/* ================= the right video for each question ================= */
+const PLAYLIST='PLEaxsqCAZKoCKsxdsJLMbZTqSuBQF2z2f';
+const VT={'Dcun-l5jM9w':'Addition Reactions of Alkenes and Markovnikov’s Rule','l3Sb_GWBano':'Dehydration Reactions of Alcohols and Zaitsev’s Rule','veiUgkx_Dlc':'Oxidation of Alcohols: Classification and the Reaction','K0oEXP7JBZU':'Reduction Reactions of Aldehydes and Ketones','2pwJ5G0uOtA':'How to Make Esters through Esterification','vfSSUIcgzTY':'Hydrolysis of Esters: Acid and Base (Saponification)','HU4KHyptdVA':'Hydrolysis Reactions of Amides with Acids and Bases','1KPqZ2pp9bg':'Formation of Hemiacetals and Acetals','whVLjQhx3FI':'Cyclic Acetals and Ketals','2MsgPQYwsjA':'Types of Chemical Reactions','M7VkdbGkPXY':'Lipids: Hydrogenation of Unsaturated Fats','gO3YPk_2lTE':'Lipids: Saponification of Triacylglycerides','xbsGe976lZ4':'Organic Chemistry: An Introduction (Part 2)','gSKpPWYVnTU':'Organic Chemistry: An Introduction (Part 1)','b4DBut72xEI':'Drawing Alkenes: Expanded, Condensed & Skeletal Formulas','9lxWINhQtUc':'Naming Alkanes with Branches','JutTTWvB2wQ':'Identifying and Naming Cis and Trans Alkenes','nN-RMEEbjLI':'How to Name Ethers in 3 Easy Steps'};
+const V=(id,t,note)=>({id,t:t||0,note:note||''});
+const RXV={combustion:[V('2MsgPQYwsjA',728,'Combustion section')],
+ substitution:[V('xbsGe976lZ4',226,'Alkyl halides'),V('Dcun-l5jM9w',276,'Compare: halogen ADDITION to alkenes')],
+ hydrogenation:[V('Dcun-l5jM9w',126,'Hydrogenation'),V('M7VkdbGkPXY',0,'Hydrogenating fats')],
+ halogenAdd:[V('Dcun-l5jM9w',276,'Halogenation (adding X₂)')],
+ hydrohalogenation:[V('Dcun-l5jM9w',532,'Adding HX'),V('Dcun-l5jM9w',613,'Markovnikov’s rule')],
+ hydration:[V('Dcun-l5jM9w',929,'Hydration'),V('Dcun-l5jM9w',613,'Markovnikov’s rule')],
+ dehydration:[V('l3Sb_GWBano',0,'Dehydration of alcohols'),V('l3Sb_GWBano',104,'Finding the major product')],
+ ox1Ald:[V('veiUgkx_Dlc',198,'1° alcohol → aldehyde'),V('veiUgkx_Dlc',85,'Classifying 1°, 2°, 3° alcohols')],
+ ox1Acid:[V('veiUgkx_Dlc',304,'Aldehyde → carboxylic acid'),V('veiUgkx_Dlc',198,'1° alcohol → aldehyde')],
+ oxAldAcid:[V('veiUgkx_Dlc',304,'Aldehyde → carboxylic acid')],
+ ox2:[V('veiUgkx_Dlc',356,'2° alcohol → ketone'),V('veiUgkx_Dlc',85,'Classifying 1°, 2°, 3° alcohols')],
+ reduction:[V('K0oEXP7JBZU',5,'Reducing aldehydes and ketones')],
+ esterification:[V('2pwJ5G0uOtA',5,'Esterification')],
+ esterHydrolysis:[V('vfSSUIcgzTY',86,'Acid hydrolysis'),V('vfSSUIcgzTY',436,'Compare: base hydrolysis')],
+ saponification:[V('vfSSUIcgzTY',436,'Saponification (base hydrolysis)'),V('gO3YPk_2lTE',0,'Saponification of fats')],
+ amidation:[V('HU4KHyptdVA',1006,'Amides as condensation products'),V('HU4KHyptdVA',5,'Amide hydrolysis (the reverse reaction)')],
+ amideHydrolysis:[V('HU4KHyptdVA',248,'Acid hydrolysis → ammonium salt'),V('HU4KHyptdVA',5,'Cutting the amide bond')],
+ amideBase:[V('HU4KHyptdVA',327,'Base hydrolysis → carboxylate salt'),V('HU4KHyptdVA',5,'Cutting the amide bond')],
+ hemiacetal:[V('1KPqZ2pp9bg',11,'Hemiacetals'),V('whVLjQhx3FI',0,'Cyclic acetals and ketals')],
+ acetal:[V('1KPqZ2pp9bg',326,'Hemiacetal → acetal'),V('whVLjQhx3FI',0,'Cyclic acetals and ketals')],
+ neutralAcid:[V('HU4KHyptdVA',327,'Neutralizing a carboxylic acid with base'),V('vfSSUIcgzTY',832,'Naming carboxylate salts')],
+ neutralAmine:[V('HU4KHyptdVA',248,'Amines as bases: making an ammonium salt')]};
+const NAMEV={alkane:V('9lxWINhQtUc',0,'Naming alkanes'),halide:V('9lxWINhQtUc',0,'Naming the carbon chain'),alkene:V('JutTTWvB2wQ',0,'Naming alkenes'),alkyne:V('JutTTWvB2wQ',0,'Naming with multiple bonds'),ether:V('nN-RMEEbjLI',0,'Naming ethers'),acetal:V('nN-RMEEbjLI',0,'Naming –OR (alkoxy) groups'),carboxylate:V('vfSSUIcgzTY',832,'Naming carboxylate salts')};
+const mmss=t=>Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
+function videosFor(){const q=state.q;if(!q)return [];const st=q.steps[state.step];let list=(RXV[q.r.key]||[]).slice();
+ if(q.r.key==='reduction'&&/ketone|anone/.test(q.r.reactants[0].name))list=[V('K0oEXP7JBZU',204,'Reducing ketones → 2° alcohols'),V('K0oEXP7JBZU',152,'Reducing aldehydes → 1° alcohols')];
+ else if(q.r.key==='reduction')list=[V('K0oEXP7JBZU',152,'Reducing aldehydes → 1° alcohols'),V('K0oEXP7JBZU',204,'Reducing ketones → 2° alcohols')];
+ if(st&&st.kind==='name'){const gl=gList(parseSmi(st.comp.smi)),k=GPRI.find(x=>gl.includes(x))||'alkane';if(NAMEV[k])list.unshift(NAMEV[k])}
+ if(st&&st.kind==='draw'&&st.label==='Draw reactant')list.unshift(V('b4DBut72xEI',0,'Drawing from a name: expanded, condensed and skeletal'));
+ const seen=new Set();return list.filter(v=>{const k=v.id+'@'+v.t;if(seen.has(k))return false;seen.add(k);return true}).slice(0,3)}
+const vd=$('videoDetails'),pl=$('plPlayer');let curVid=null,playlistMode=false;
+function embedSrc(v){return `https://www.youtube.com/embed/${v.id}?start=${v.t}&rel=0`}
+function playVid(v,force){curVid=v;playlistMode=false;$('vidCard').innerHTML=`<div class="vidtag">🎯 Matched to this question</div><div class="vidtitle">${esc(VT[v.id]||'Dr. Dan video')}</div><div class="vidnote">▶ Starts at <b>${mmss(v.t)}</b>${v.note?' · '+esc(v.note):''}</div>`;
+ const src=embedSrc(v);if(vd.open&&(force||pl.dataset.src!==src)){pl.src=src;pl.dataset.src=src}}
+function updateVideo(){const list=videosFor();if(!list.length)return;playVid(list[0]);
+ $('vidMore').innerHTML=list.length>1?`<div class="vidmore-h">Also helpful</div>`+list.slice(1).map((v,i)=>`<button type="button" class="vidalt" data-i="${i+1}">▶ ${esc(v.note||VT[v.id])} <small>${esc(VT[v.id]||'')} · ${mmss(v.t)}</small></button>`).join(''):'';
+ document.querySelectorAll('.vidalt').forEach(b=>b.onclick=()=>playVid(list[Number(b.dataset.i)],true))}
+function openVideo(){vd.open=true;if(curVid)playVid(curVid,true);vd.scrollIntoView({behavior:'smooth',block:'center'})}
+$('vidPlaylist').onclick=()=>{playlistMode=true;const src=`https://www.youtube.com/embed/videoseries?list=${PLAYLIST}&rel=0`;pl.src=src;pl.dataset.src=src;$('vidCard').innerHTML='<div class="vidtag">📺 Whole CHEM 3B playlist</div><div class="vidnote">Pick any video. A new question switches back to its matched video.</div>'};
+vd.addEventListener('toggle',()=>{if(vd.open&&curVid&&!pl.dataset.src)playVid(curVid,true)});
 buildModes();renderRef();renderJourney();nextQ();
 </script>
 <script id="canvasAutoResize">

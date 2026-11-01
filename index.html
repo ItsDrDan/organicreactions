@@ -252,7 +252,8 @@ details.directions{background:linear-gradient(120deg,#f7f3ff,#eef7ff)}
 .vidmore{display:grid;gap:6px;margin-top:10px}.vidmore-h{font-size:12px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .vidalt{text-align:left;border:1px solid #e3dccd;background:#fff;border-radius:12px;padding:7px 10px;font-weight:800;font-size:14px;cursor:pointer}.vidalt:hover{background:#f6fafc;border-color:#9bc3e0}.vidalt small{display:block;font-weight:600;color:var(--muted);font-size:12px}
 .linkbtn{border:0;background:none;padding:0;color:#2f7fbf;font-weight:800;cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-size:inherit}
-</style></head>
+</style><script src="https://itsdrdan.github.io/games/track.js" defer></script>
+</head>
 <body>
 <div class="celebrate" id="celebrate"></div><div class="toast" id="toast" role="status"></div>
 <div class="app">
@@ -300,6 +301,7 @@ details.directions{background:linear-gradient(120deg,#f7f3ff,#eef7ff)}
 <details class="card collapsible" id="videoDetails"><summary>🎥 Learn with Dr. Dan</summary><div class="body"><div id="vidCard" class="vidcard"></div><div class="video-wrap"><iframe id="plPlayer" title="Dr. Dan video for this question" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><div id="vidMore" class="vidmore"></div><p class="footer-note"><button type="button" class="linkbtn" id="vidPlaylist">📺 Browse the whole CHEM 3B playlist</button> · <a href="https://www.youtube.com/playlist?list=PLEaxsqCAZKoCKsxdsJLMbZTqSuBQF2z2f" target="_blank" rel="noopener">Open on YouTube ↗</a></p></div></details>
 </div>
 <p class="footer-note">Reactions follow the CHEM 3B organic chapters (alkanes through amides). Major products are shown; cis/trans isomers are not distinguished. All questions and structures are generated for this game.</p>
+<p class="footer-note dd-privacy">This game collects anonymous practice stats (no names or student IDs) to help plan new lessons.</p>
 </div>
 <script>
 /* ================= helpers ================= */
@@ -894,6 +896,7 @@ function stepSolved(revealed,note){const q=state.q,st=q.steps[state.step];state.
  if(st.kind==='mc')$('questionArea').querySelectorAll('.option').forEach(b=>{b.disabled=true;if(b.dataset.key===st.answer)b.classList.add('right')});
  if(revealed)state.assistedQ=true;
  const last=state.step===q.steps.length-1;
+ if(revealed||last)ddLog(!state.assistedQ);
  let extra=st.kind==='draw'?(revealed?`<div><b>Answer:</b></div>${answerHTML(st)}`:''):'';
  if(st.kind==='draw'&&st.accept.length>1&&revealed)extra+=`<small>Other correct answers are also accepted for this one.</small>`;
  if(st.kind==='name'){const S=nameSets(st.comp.name);extra=`<div>${revealed?'<b>Answer:</b> ':''}<b>${esc(S.prim)}</b>${S.show.length>1?` <small>(also accepted: ${S.show.slice(1).map(esc).join(', ')})</small>`:''}</div>`+(note?`<div><small>${note}</small></div>`:'')}
@@ -904,13 +907,14 @@ function stepSolved(revealed,note){const q=state.q,st=q.steps[state.step];state.
  if(state.assistedQ){state.assisted++;state.streak=0;fb('good','👀 '+st.why+saltNote+extra+fullRx+'<br><small>Assisted: this question earns no point. Try the next one on your own.</small><div style="margin-top:6px"><button type="button" class="linkbtn" id="fbVid">🎥 Review this with Dr. Dan’s video</button></div>');if($('fbVid'))$('fbVid').onclick=openVideo;awardXP(true)}
  else{state.correct++;state.streak++;confetti();fb('good','✅ Correct! '+st.why+saltNote+extra+fullRx);awardXP(false)}
  updateStats()}
+function ddLog(ok){try{const q=state.q;if(!q||q.ddLogged||!window.ddTrack)return;q.ddLogged=1;const m=MODES.find(x=>x.id===state.mode);ddTrack({game:'organicreactions',course:'3B',mode:m?m.title:state.mode,topic:(q.r&&q.r.type)||(m?m.title:''),correct:!!ok})}catch(e){}}
 function check(){if(state.stepDone)return;const st=state.q.steps[state.step];
  if(st.kind==='mc'){if(!state.selected){fb('bad','Choose an answer first.');return}
-  if(state.selected!==st.answer){state.streak=0;updateStats();$('questionArea').querySelectorAll('.option').forEach(b=>{if(b.dataset.key===state.selected){b.classList.add('wrong');b.classList.remove('selected')}});state.selected=null;fb('bad','🔎 Not quite. '+esc(st.hint));return}
+  if(state.selected!==st.answer){ddLog(false);state.streak=0;updateStats();$('questionArea').querySelectorAll('.option').forEach(b=>{if(b.dataset.key===state.selected){b.classList.add('wrong');b.classList.remove('selected')}});state.selected=null;fb('bad','🔎 Not quite. '+esc(st.hint));return}
   stepSolved(false);return}
- if(st.kind==='name'){const res=checkName($('nameIn').value,st.comp);if(!res.ok){if(normName($('nameIn').value)){state.streak=0;updateStats()}fb('bad','🔎 Not quite. '+res.msg);return}stepSolved(false,res.note);return}
+ if(st.kind==='name'){const res=checkName($('nameIn').value,st.comp);if(!res.ok){if(normName($('nameIn').value)){ddLog(false);state.streak=0;updateStats()}fb('bad','🔎 Not quite. '+res.msg);return}stepSolved(false,res.note);return}
  const res=checkDrawing(st.accept);
- if(!res.ok){if(D.atoms.length){state.streak=0;updateStats()}fb('bad','🔎 Not quite. '+res.msg);return}
+ if(!res.ok){if(D.atoms.length){ddLog(false);state.streak=0;updateStats()}fb('bad','🔎 Not quite. '+res.msg);return}
  stepSolved(false);if(res.water)toast('Correct! (You don’t need to draw water.)')}
 function hint(){if(state.stepDone)return;const q=state.q,st=q.steps[state.step];let h='💡 '+esc(st.hint);
  if(st.kind==='draw'&&st.hintShow==='re')h+=`<div style="margin-top:6px">Here are the reactant structures:</div>${rxnHTML(q.r,{re:'struct',pr:'hidden'},state.qStyle)}`;

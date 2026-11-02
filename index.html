@@ -1191,7 +1191,7 @@ function buildQuestion(mode){
   if(useS){orgP.forEach((p,k)=>{pr=pr.split(p.name).join(k?'the other product shown':'the product shown')});pr=cap(pr)}
   steps.push(Object.assign(drawStepFor(r.reactants,idx,r.rev.alts,pr,r.hint,why),{view:{re:'hidden',pr:useS?'bare':'name',hideIdx:idx},hintShow:'pr',typeLabel:r.type}))}
  else if(mode==='name'){const doR=canNameRe(r)&&(!r.draw||Math.random()<.3);
-  if(doR){const i=r.rev.idx[0];steps.push(Object.assign(nameStep(r.reactants[i],'Name the starting material (the “?”) that formed the product shown.',{re:'hidden',pr:'bare',hideIdx:[i]},'Name reactant',why),{typeLabel:r.type}))}
+  if(doR){const i=r.rev.idx[0];steps.push(Object.assign(nameStep(r.reactants[i],'Name the starting material (the “?”) that formed the '+(orgP.length>1?'products':'product')+' shown.',{re:'hidden',pr:'bare',hideIdx:[i]},'Name reactant',why),{typeLabel:r.type}))}
   else{const i=pick(r.draw),p=r.products[i];steps.push(nameStep(p,`Name the ${orgP.length>1?groupWord(p)+' product':'organic product'} of this reaction.`,{re:'bare',pr:'hidden'},'Name product',why))}}
  else{const orgIdx=r.reactants.map((p,i)=>p.smi?i:-1).filter(i=>i>=0);const nameStart=struct&&orgIdx.length===1;
   if(nameStart)steps.push(nameStep(r.reactants[orgIdx[0]],'Step 1: name the reactant shown.',{re:'bare',pr:'hidden'},'Name reactant','Good. Now decide what kind of reaction this is.'));

@@ -1142,6 +1142,10 @@ function inputFamily(t){if(/oicacid$|icacid$/.test(t))return ['acid'];if(/amide$
  if(/(oate|ate)(ion)?$/.test(t))return ['ester','carboxylate'];if(/one$|ketone$/.test(t))return ['ketone'];if(/ol$|alcohol$/.test(t))return ['alcohol','hemiacetal'];if(/al$|aldehyde$/.test(t))return ['aldehyde'];
  if(/ene$|ylene$/.test(t))return ['alkene'];if(/yne$/.test(t))return ['alkyne'];if(/ane$/.test(t))return ['alkane','halide','ether','acetal'];return null}
 function checkName(input,comp){const t=normName(input);if(!t)return {ok:false,msg:'Type a name first.'};const S=nameSets(comp.name);
+ // Older 'n-' (normal) names like n-propanol are accepted, with a note. (N-methyl amine names are a different thing and get no note.)
+ const typed=String(input).toLowerCase().trim().replace(/[‐‑‒–—―−]/g,'-').replace(/\s+/g,' ');
+ const nNormal=/^n ?[- ] ?(propyl|butyl|pentyl|hexyl) ?(alcohol|amine)$|^n ?[- ] ?(propanol|butanol|pentanol|hexanol)$/.test(typed);
+ if(S.full.has(t)&&nNormal)return {ok:true,note:`Technically correct: the “n-” (normal, meaning an unbranched chain) name is an older naming style. We don’t use it in CHEM 3B, so write the IUPAC name: <b>${esc(S.prim)}</b>.`};
  if(S.full.has(t))return {ok:true};if(S.part.has(t))return {ok:true,note:`Counted as correct. The complete name includes the locant: <b>${esc(S.prim)}</b>.`};
  const g=parseSmi(comp.smi),gl=gList(g),main=GPRI.find(k=>gl.includes(k))||'alkane',fam=inputFamily(t);
  const nod=x=>x.replace(/\d/g,'');if([...S.full].some(v=>nod(v)===nod(t)&&v!==t))return {ok:false,msg:'Almost! The chain and the ending are right. Check the locant number: which carbon is the group on? Number from the end closest to the group.'};

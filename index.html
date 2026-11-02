@@ -521,12 +521,17 @@ function fPlot(f){const W=420,H=270,L=58,R=16,T=14,B=46,pw=W-L-R,ph=H-T-B,X=f.x,
  (X.ticks||niceTicks(X.min,X.max,5)).forEach(v=>{const x=sx(v);o+=`<line x1="${x}" y1="${T+ph}" x2="${x}" y2="${T+ph+5}" stroke="${FS}"/>`+svgT(x,T+ph+19,X.fmt?X.fmt.replace('#',v):v,'font-size="12" text-anchor="middle"');if(f.grid)o+=`<line x1="${x}" y1="${T}" x2="${x}" y2="${T+ph}" stroke="#c9d6e0" stroke-dasharray="3 3"/>`});
  if(!Y.noTicks)(Y.ticks||niceTicks(Y.min,Y.max,5)).forEach(v=>{const y=sy(v);o+=`<line x1="${L-5}" y1="${y}" x2="${L}" y2="${y}" stroke="${FS}"/>`+svgT(L-8,y+4,v,'font-size="12" text-anchor="end"');if(f.grid)o+=`<line x1="${L}" y1="${y}" x2="${L+pw}" y2="${y}" stroke="#c9d6e0" stroke-dasharray="3 3"/>`});
  o+=svgT(L+pw/2,H-8,X.label||'','font-size="13" font-weight="700" text-anchor="middle"')+svgT(16,T+ph/2,Y.label||'',`font-size="13" font-weight="700" text-anchor="middle" transform="rotate(-90 16 ${T+ph/2})"`);
+ (f.regions||[]).forEach(r=>{const P=r.pts.map(p=>sx(p[0]).toFixed(1)+','+sy(p[1]).toFixed(1)).join(' ');o+=`<polygon points="${P}" fill="${r.fill||'#eaf2f8'}" stroke="none"/>`;if(r.label)o+=svgT(sx(r.at[0]),sy(r.at[1]),r.label,'font-size="14" font-weight="900" text-anchor="middle"')});
  (f.series||[]).forEach((s,k)=>{const col=s.color||(f.mono?FS:PCOL[k%PCOL.length]);const P=s.pts.map(p=>[sx(p[0]),sy(p[1])]);
+  if(s.bars){const bw=s.barW!=null?s.barW*pw/(X.max-X.min):Math.max(4,pw/(s.pts.length*3));P.forEach(p=>{o+=`<rect x="${(p[0]-bw/2).toFixed(1)}" y="${p[1].toFixed(1)}" width="${bw.toFixed(1)}" height="${(T+ph-p[1]).toFixed(1)}" fill="${col}" stroke="${FS}" stroke-width="1"/>`});if(s.barLabels)s.pts.forEach((q,i)=>{o+=svgT(P[i][0],P[i][1]-5,s.barLabels[i]??'','font-size="11.5" font-weight="700" text-anchor="middle"')});return}
   if(s.dots)P.forEach(p=>{o+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.6" fill="${col}"/>`});
   if(!s.dotsOnly)o+=`<polyline points="${P.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linejoin="round"/>`;
   if(s.label){let i=s.labelAt!=null?s.labelAt:P.reduce((m,p,j)=>p[1]<P[m][1]?j:m,0);const p=P[Math.min(P.length-1,i)];const lx=p[0]+(s.dx!=null?s.dx:22),ly=p[1]+(s.dy!=null?s.dy:-14);
-   o+=`<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${(lx-4).toFixed(1)}" y2="${(ly+3).toFixed(1)}" stroke="${FS}" stroke-width="1"/>`+svgT(lx,ly+6,s.label,`font-size="15" font-weight="900" fill="${col}"`)}});
+   const left=(s.dx!=null?s.dx:22)<0;o+=`<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${(lx+(left?4:-4)).toFixed(1)}" y2="${(ly+3).toFixed(1)}" stroke="${FS}" stroke-width="1"/>`+svgT(lx,ly+6,s.label,`font-size="15" font-weight="900" fill="${col}" text-anchor="${left?'end':'start'}"`)}});
+ (f.hlines||[]).forEach(h=>{const y=sy(h.y);o+=`<line x1="${L}" y1="${y.toFixed(1)}" x2="${L+pw}" y2="${y.toFixed(1)}" stroke="${FS}" stroke-width="1.3" stroke-dasharray="5 4"/>`;if(h.label)o+=svgT(L+pw-4,y-5,h.label,'font-size="12" font-weight="700" text-anchor="end"')});
+ (f.vlines||[]).forEach(v=>{const x=sx(v.x);o+=`<line x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${T+ph}" stroke="${FS}" stroke-width="1.3" stroke-dasharray="5 4"/>`;if(v.label)o+=svgT(x+4,T+14,v.label,'font-size="12" font-weight="700"')});
  (f.marks||[]).forEach(m=>{o+=svgT(sx(m[0]),sy(m[1]),m[2],'font-size="13" font-weight="800" text-anchor="middle"')});
+ (f.points||[]).forEach(p=>{const x=sx(p[0]),y=sy(p[1]);o+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.2" fill="#fff" stroke="${FS}" stroke-width="2"/>`;if(p[2])o+=svgT(x+(p[3]??8),y+(p[4]??-8),p[2],'font-size="13" font-weight="900"')});
  return `<svg class="fbx-fsvg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="graph">${o}</svg>`}
 /* MO pictures: kind = sigma_s, sigmastar_s, sigma_p, sigmastar_p, pi_p, pistar_p; f.show='mo' (result only) or 'combine' (AO + AO → MO) */
 function moShape(kind,cx,cy){const P='#7fb8e0',N='#fff',st=`stroke="${FS}" stroke-width="1.8"`;let o='';const nuc=(x)=>`<circle cx="${x}" cy="${cy}" r="3" fill="${FS}"/>`;const d=26;
@@ -668,7 +673,51 @@ function fHaworth(f){if(f.items)return fbMulti(f,fHaworth);const b=fbBox();let o
   o+=fbT(Ox,Oy+6*fz,'O',`font-size="${17*fz}" text-anchor="middle"`);b.add(Ox,Oy+12);if(lk.tag){const ty=Oy+24*fz;o+=fbTag(Ox,ty,lk.tag,fz);b.add(Ox,ty-10);b.add(Ox,ty+10)}}
  else o+=hwDraw(hwRing(Object.assign({fz},f)),0,0,b).o;
  return fbSvg(o,b,f.cap,'Haworth projection',8,fz)}
-const FIG={cycle:fCycle,path:fPath,table:fTable,eq:fEq,plot:fPlot,mo:fMO,modiag:fMODiag,particles:fParticles,cylinder:fScale,buret:fScale,ruler:fScale,balance:fScale,targets:fTargets,fischer:fFischer,haworth:fHaworth};
+/* Orbital box diagrams: subs=[{name:'2p',boxes:['ud','u','']}] ; box codes: '' empty, 'u' ↑, 'd' ↓, 'ud' ↑↓, 'uu' ↑↑ (Hund violation), 'dd'. items=[{subs,cap}] draws several side by side. */
+function fOrbitals(f){const one=(g,ox,oy)=>{let o='',x=ox;const BW=30,GAP=6;
+  if(g.stack){/* energy-stacked: first sub at the bottom */const n=g.subs.length,rowH=58,wmax=Math.max(...g.subs.map(sb=>sb.boxes.length*BW));
+   g.subs.forEach((sb,r)=>{const y=oy+(n-1-r)*rowH,w=sb.boxes.length*BW,x0=ox+30+(wmax-w)/2;sb.boxes.forEach((code,i)=>{const bx=x0+i*BW;o+=`<rect x="${bx}" y="${y}" width="${BW}" height="30" fill="#fff" stroke="${FS}" stroke-width="1.6"/>`;
+     const arr=(cx,up)=>`<line x1="${cx}" y1="${y+(up?24:6)}" x2="${cx}" y2="${y+(up?6:24)}" stroke="${FS}" stroke-width="2.2" marker-end="url(#oarr)"/>`;
+     if(code==='u')o+=arr(bx+15,1);else if(code==='d')o+=arr(bx+15,0);else if(code==='ud')o+=arr(bx+9,1)+arr(bx+21,0);else if(code==='uu')o+=arr(bx+9,1)+arr(bx+21,1);else if(code==='dd')o+=arr(bx+9,0)+arr(bx+21,0)});
+    o+=svgT(x0+w+8,y+20,sb.name,'font-size="13" font-weight="800"')});
+   o+=`<line x1="${ox+10}" y1="${oy+(n-1)*rowH+30}" x2="${ox+10}" y2="${oy}" stroke="${FS}" stroke-width="1.6" marker-end="url(#oarr)"/>`+svgT(ox+10,oy-4,'E','font-size="12" font-weight="800" text-anchor="middle"');
+   return [o,wmax+30+70,n*rowH-28]}const arr=(cx,up,col)=>`<line x1="${cx}" y1="${oy+(up?24:6)}" x2="${cx}" y2="${oy+(up?6:24)}" stroke="${col||FS}" stroke-width="2.2" marker-end="url(#oarr)"/>`;
+  (g.subs||[]).forEach(sb=>{const n=sb.boxes.length;sb.boxes.forEach((code,i)=>{const bx=x+i*BW;o+=`<rect x="${bx}" y="${oy}" width="${BW}" height="30" fill="#fff" stroke="${FS}" stroke-width="1.6"/>`;
+    if(code==='u')o+=arr(bx+15,1);else if(code==='d')o+=arr(bx+15,0);else if(code==='ud')o+=arr(bx+9,1)+arr(bx+21,0);else if(code==='uu')o+=arr(bx+9,1)+arr(bx+21,1);else if(code==='dd')o+=arr(bx+9,0)+arr(bx+21,0)});
+   o+=svgT(x+n*BW/2,oy+46,sb.name,'font-size="13" font-weight="800" text-anchor="middle"');x+=n*BW+14});
+  return [o,x-ox-14]};
+ const items=f.items||[Object.assign({},f)];let o='',x=10,W=0,hmax=0;const stacked=items.some(it=>it.stack);
+ items.forEach(it=>{const [g,w,h]=one(it,x,stacked?16:8);o+=g;const hh=h||30;hmax=Math.max(hmax,hh);if(it.cap)o+=svgT(x+w/2,(stacked?16:8)+hh+(it.stack?26:36),it.cap,'font-size="14" font-weight="900" text-anchor="middle"');x+=w+28});W=x-10;const H=stacked?16+hmax+34:(f.items?84:60);
+ return `<svg class="fbx-fsvg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="max-width:100%;height:auto" role="img" aria-label="orbital diagram"><defs><marker id="oarr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="${FS}"/></marker></defs>${o}</svg>`}
+/* Blank periodic table with letters: cells={X:[period,group]}; periods 1-6 main layout (no f-block); show: {Na:[3,1]} real symbols. */
+function fPtGrid(f){const CW=22,CH=22,W=18*CW+16,per=f.periods||6,H=per*CH+16;let o='';
+ const has=(p,g)=>p===1?(g===1||g===18):p<=3?(g<=2||g>=13):true;
+ for(let p=1;p<=per;p++)for(let g=1;g<=18;g++){if(!has(p,g))continue;o+=`<rect x="${8+(g-1)*CW}" y="${8+(p-1)*CH}" width="${CW}" height="${CH}" fill="${p>=4&&g>=3&&g<=12?'#f3f6f8':'#fff'}" stroke="${FS}" stroke-width="1"/>`}
+ const put=(t,p,g,col)=>{o+=svgT(8+(g-1)*CW+CW/2,8+(p-1)*CH+CH/2+5,t,`font-size="13" font-weight="900" text-anchor="middle" fill="${col}"`)};
+ Object.entries(f.show||{}).forEach(([t,[p,g]])=>put(t,p,g,'#5c6a75'));Object.entries(f.cells||{}).forEach(([t,[p,g]])=>{o+=`<rect x="${8+(g-1)*CW}" y="${8+(p-1)*CH}" width="${CW}" height="${CH}" fill="#fff3e0" stroke="#e8973a" stroke-width="1.6"/>`;put(t,p,g,'#b4640f')});
+ return `<svg class="fbx-fsvg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="max-width:100%;height:auto" role="img" aria-label="periodic table outline">${o}</svg>`}
+/* Galvanic cell: left/right = {metal:'Zn', sol:'Zn²⁺(aq)', label:'A'}; opts: volt (text on meter), eflow ('lr'|'rl'|null), ions (true: show + and − ion arrows in salt bridge with 'lr'/'rl' = direction cations move), hide: ['sol'] */
+function fCell(f){const W=440,H=240;let o='';const bk=(x,side)=>{const d=f[side]||{};o+=`<path d="M${x} 110 V210 a8 8 0 0 0 8 8 H${x+112} a8 8 0 0 0 8 -8 V110" fill="none" stroke="${FS}" stroke-width="2"/><rect x="${x+2}" y="150" width="${116}" height="66" fill="#dbeefb"/>`;
+   o+=`<rect x="${x+48}" y="70" width="24" height="120" fill="${d.color||'#9aa8b2'}" stroke="${FS}" stroke-width="1.5"/>`+svgT(x+(side==='left'?40:80),84,d.metal||'',`font-size="15" font-weight="900" text-anchor="${side==='left'?'end':'start'}"`);
+   if(!(f.hide||[]).includes('sol'))o+=svgT(x+60,236,d.sol||'','font-size="13" font-weight="700" text-anchor="middle"');if(d.label)o+=`<circle cx="${side==='left'?x+22:x+98}" cy="138" r="11" fill="#fff3e0" stroke="#e8973a" stroke-width="1.6"/>`+svgT(side==='left'?x+22:x+98,143,d.label,'font-size="13" font-weight="900" font-style="italic" text-anchor="middle" fill="#b4640f"')};
+ bk(40,'left');bk(280,'right');
+ const vt=f.volt||'V',vw=Math.max(44,vt.length*8.5+16);o+=`<path d="M100 70 V30 H${220-vw/2} M${220+vw/2} 30 H340 V70" fill="none" stroke="${FS}" stroke-width="2"/><rect x="${220-vw/2}" y="14" width="${vw}" height="32" rx="16" fill="#fff" stroke="${FS}" stroke-width="2"/>`+svgT(220,35,vt,'font-size="13" font-weight="900" text-anchor="middle"');
+ o+=`<path d="M130 160 V120 a10 10 0 0 1 10 -10 H300 a10 10 0 0 1 10 10 V160" fill="none" stroke="${FS}" stroke-width="12" stroke-linecap="butt"/><path d="M130 160 V120 a10 10 0 0 1 10 -10 H300 a10 10 0 0 1 10 10 V160" fill="none" stroke="#f6e6c3" stroke-width="8"/>`+svgT(220,104,'salt bridge','font-size="11.5" font-weight="700" text-anchor="middle"');
+ if(f.eflow){const lr=f.eflow==='lr';o+=`<path d="M${lr?120:320} 8 H${lr?320:120}" stroke="#c0473b" stroke-width="2" marker-end="url(#ahr)"/>`+svgT(lr?108:332,13,'e⁻','font-size="12" font-weight="900" text-anchor="middle" fill="#c0473b"')}
+ if(f.ions){const lr=f.ions==='lr';o+=svgT(220,123,`${lr?'cations →':'← cations'}`,'font-size="11" font-weight="800" text-anchor="middle"')+svgT(220,136,`${lr?'← anions':'anions →'}`,'font-size="11" font-weight="800" text-anchor="middle"')}
+ const defs=`<defs><marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#c0473b"/></marker></defs>`;
+ return `<svg class="fbx-fsvg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="max-width:100%;height:auto" role="img" aria-label="electrochemical cell">${defs}${o}</svg>`}
+/* Line spectrum: min,max (nm), lines=[[656,'label?'],...], items=[{lines,cap}] for stacked spectra; visible=true colors the band */
+function fSpectrum(f){const W=440,L=30,R=14,pw=W-L-R,items=f.items||[{lines:f.lines,cap:f.cap}],rowH=52,H=items.length*rowH+40,mn=f.min||380,mx=f.max||720;let o='';
+ const sx=v=>L+(v-mn)/(mx-mn)*pw;const col=v=>{const t=(v-380)/340;const h=Math.max(0,Math.min(270,270-270*t));return `hsl(${h} 90% 50%)`};
+ items.forEach((it,k)=>{const y=18+k*rowH;o+=`<rect x="${L}" y="${y}" width="${pw}" height="30" fill="${f.visible?'url(#vis)':'#2d3f4b'}" stroke="${FS}"/>`;
+  (it.lines||[]).forEach(([v,lab])=>{o+=`<line x1="${sx(v).toFixed(1)}" y1="${y}" x2="${sx(v).toFixed(1)}" y2="${y+30}" stroke="${f.visible?'#111':col(v)}" stroke-width="2.6"/>`;if(lab)o+=svgT(sx(v),y-5,lab,'font-size="11" font-weight="800" text-anchor="middle"')});
+  if(it.cap)o+=svgT(L-4,y+20,it.cap,'font-size="13" font-weight="900" text-anchor="end"')});
+ const ticks=f.ticks||niceTicks(mn,mx,6);ticks.forEach(v=>{const x=sx(v);o+=`<line x1="${x.toFixed(1)}" y1="${H-34}" x2="${x.toFixed(1)}" y2="${H-29}" stroke="${FS}"/>`+svgT(x,H-17,v,'font-size="12" text-anchor="middle"')});
+ o+=svgT(L+pw/2,H-3,'wavelength ('+(f.unit||'nm')+')','font-size="12" font-weight="700" text-anchor="middle"');
+ const defs=`<defs><linearGradient id="vis" x1="0" x2="1"><stop offset="0" stop-color="#7a00c8"/><stop offset=".18" stop-color="#2b3cff"/><stop offset=".35" stop-color="#00c2ff"/><stop offset=".5" stop-color="#00d26a"/><stop offset=".65" stop-color="#f5e300"/><stop offset=".82" stop-color="#ff8a00"/><stop offset="1" stop-color="#e01b1b"/></linearGradient></defs>`;
+ return `<svg class="fbx-fsvg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="max-width:100%;height:auto" role="img" aria-label="line spectrum">${defs}${o}</svg>`}
+const FIG={cycle:fCycle,path:fPath,table:fTable,eq:fEq,plot:fPlot,mo:fMO,modiag:fMODiag,particles:fParticles,cylinder:fScale,buret:fScale,ruler:fScale,balance:fScale,targets:fTargets,fischer:fFischer,haworth:fHaworth,orbitals:fOrbitals,ptgrid:fPtGrid,cell:fCell,spectrum:fSpectrum};
 function figBlock(fs){if(!fs)return '';return `<span class="fbx-figs">${fs.map(f=>{try{return `<span class="fbx-fig">${FIG[f.type](f)}</span>`}catch(e){return ''}}).join('')}</span>`}
 const qHTML=q=>q.q+structBlock(q.s)+figBlock(q.f);
 const optHTML=(q,k)=>(String(q.c[k]).startsWith('§')?'':q.c[k])+(q.cs&&q.cs[k]?`<span class="fbx-optmol">${molSVG(q.cs[k],0.8)}</span>`:'');

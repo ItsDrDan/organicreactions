@@ -1,5 +1,7 @@
 # Bond Voyage!: art request for ChatGPT
 
+**Status (Nov 5, 2026):** all art is in: logo, 5 mascot moods, every tile and badge, cut from ChatGPT's uncropped sticker sheets. The study hub card image is in the games repo.
+
 **Keep this game's colors.** Coral (#e0675a) and ocean blue → teal (#2f8fd0 → #43b6a8), with the pastel tile colors mint #e7f6e9, butter #fff0dc, sand #fff7d6, sky #e6f2ff, teal #e3f7f6, lavender #f0e8fc and blush #fde7e7. Navy outlines #2e2b38. The nautical theme stays: sailboat, waves, map, compass.
 
 **31 images total: 1 logo + 5 mascot moods + 9 mode-tile badges + 16 achievement badges.** Bring them back and I'll wire them in. The game draws all its molecules and reactions in code, so don't make chemical structures beyond what's listed.

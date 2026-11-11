@@ -129,6 +129,7 @@ details.directions .tip{margin:8px 18px 16px;background:#fff6d6;border-radius:12
 .audit span{background:#f1ece2;border-radius:999px;padding:4px 10px}
 .audit .over{background:#fdeeed;color:#a2382f}
 .padhelp{font-size:14px;color:var(--muted);margin:8px 2px 0}
+.padkeys{margin-top:8px;font-size:14px}.padkeys summary{cursor:pointer;font-weight:700}.padkeys input{display:block;width:100%;box-sizing:border-box;font:inherit;padding:7px 9px;margin-top:5px}
 .btn-row{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:10px;margin-top:12px}
 .hintbox{display:none;background:#fff6d6;border:1px solid #f0dc94;border-radius:14px;padding:10px 14px;margin-top:10px;font-weight:600}
 .hintbox.show{display:block}
@@ -929,7 +930,7 @@ const subU=s=>String(s).replace(/\d/g,d=>SUBD[d]);
 
 /* ================= molecular graph ================= */
 const VAL={C:4,N:3,O:2,S:2,F:1,Cl:1,Br:1,I:1};
-const valence=(el,ch)=>el==='N'?3+(ch||0):el==='O'||el==='S'?2+(ch||0):VAL[el];
+const valence=(el,ch)=>el==='N'?3+(ch||0):el==='O'||el==='S'?2+(ch||0):el==='C'?4-Math.abs(ch||0):['F','Cl','Br','I'].includes(el)?1+(ch||0):VAL[el];
 function parseSmi(s){const atoms=[],bonds=[],stack=[],rings={};let i=0,prev=null,ord=1;
  while(i<s.length){const ch=s[i];
   if(ch==='('){stack.push(prev);i++;continue}
@@ -1331,7 +1332,8 @@ const ALIAS={'methanol':['methyl alcohol','wood alcohol'],'ethanol':['ethyl alco
  'hexanoic acid':['caproic acid'],'chloromethane':['methyl chloride'],'bromomethane':['methyl bromide'],'chloroethane':['ethyl chloride'],'bromoethane':['ethyl bromide'],'2-chloropropane':['isopropyl chloride'],'2-bromopropane':['isopropyl bromide'],'2-bromo-2-methylpropane':['tert-butyl bromide','t-butyl bromide'],'2-chloro-2-methylpropane':['tert-butyl chloride','t-butyl chloride'],
  'methylamine':['methanamine','aminomethane'],'ethylamine':['ethanamine','aminoethane'],'propylamine':['1-propanamine','propan-1-amine','n-propylamine'],'dimethylamine':['n-methylmethanamine'],'chlorocyclohexane':['cyclohexyl chloride'],'bromocyclohexane':['cyclohexyl bromide'],'1,2-dibromoethane':['ethylene dibromide'],'1,2-dichloroethane':['ethylene dichloride'],'2,2-dimethoxypropane':['acetone dimethyl acetal'],
  'lactic acid':['2-hydroxypropanoic acid'],'pyruvic acid':['2-oxopropanoic acid'],'malic acid':['2-hydroxybutanedioic acid','hydroxybutanedioic acid'],'fumaric acid':['(E)-butenedioic acid','trans-butenedioic acid','(E)-but-2-enedioic acid','trans-but-2-enedioic acid'],'oxaloacetic acid':['2-oxobutanedioic acid','oxobutanedioic acid'],'succinic acid':['butanedioic acid']};
-const normName=t=>String(t).toLowerCase().replace(/[‐‑‒–—―−]/g,'-').replace(/[\s\-,'’()_.]/g,'');
+// Commas between locant digits stay significant (1,2- is not 12-); other commas, spaces and hyphens are ignored.
+const normName=t=>String(t).toLowerCase().replace(/[‐‑‒–—―−]/g,'-').replace(/(\d)\s*,\s*(?=\d)/g,'$1#').replace(/[\s\-,'’()_.]/g,'');
 function nameSets(name){const full=new Set(),part=new Set();const prim=name.replace(/\s*\([^)]*\)/g,'').trim();const paren=(name.match(/\(([^)]*)\)/)||[])[1];
  const add=x=>full.add(x);add(prim);if(paren){add(paren);if(/ ion$/.test(prim))add(paren+' ion')}
  const m=prim.match(/^(.*?)(\d+)-(meth|eth|prop|but|pent|hex|hept|oct)(an)?(ol|one|ene|yne|amine)$/);
@@ -1354,8 +1356,9 @@ function checkName(input,comp){const t=normName(input);if(!t)return {ok:false,ms
  const nNormal=/^n ?[- ] ?(propyl|butyl|pentyl|hexyl) ?(alcohol|amine)$|^n ?[- ] ?(propanol|butanol|pentanol|hexanol)$/.test(typed);
  if(S.full.has(t)&&nNormal)return {ok:true,note:`Technically correct: the “n-” (normal, meaning an unbranched chain) name is an older naming style. We don’t use it in CHEM 3B, so write the IUPAC name: <b>${esc(S.prim)}</b>.`};
  if(S.full.has(t))return {ok:true};if(S.part.has(t))return {ok:true,note:`Counted as correct. The complete name includes the locant: <b>${esc(S.prim)}</b>.`};
+ const noStereo=String(input).trim().replace(/^(cis|trans|\(?[ez]\)?)\s*-\s*/i,'');if(noStereo!==String(input).trim()&&S.full.has(normName(noStereo)))return {ok:false,msg:`Leave off the cis-/trans- (E/Z) prefix here: these structures don’t show which side of the C=C each group is on. Write it as <b>${esc(S.prim)}</b>.`};
  const g=parseSmi(comp.smi),gl=gList(g),main=GPRI.find(k=>gl.includes(k))||'alkane',fam=inputFamily(t);
- const nod=x=>x.replace(/\d/g,'');if([...S.full].some(v=>nod(v)===nod(t)&&v!==t))return {ok:false,msg:'Almost! The chain and the ending are right. Check the locant number: which carbon is the group on? Number from the end closest to the group.'};
+ const nod=x=>x.replace(/[\d#]/g,'');if([...S.full].some(v=>nod(v)===nod(t)&&v!==t))return {ok:false,msg:'Almost! The chain and the ending are right. Check the locant number: which carbon is the group on? Number from the end closest to the group.'};
  if(fam&&!fam.includes(main))return {ok:false,msg:`Check the ending: this compound is ${an(ENDING[main][0])}, so its name should end in ${ENDING[main][1]}.`};
  if(main==='halide'&&!/chloro|bromo/.test(t))return {ok:false,msg:'This compound has a halogen. Name it as a chloro- or bromo- prefix with its locant number.'};
  if(main==='ester')return {ok:false,msg:'Check both parts of the ester name: the alkyl group on the O comes first (methyl, ethyl…), then the acid part ending in -oate. Count the carbons on each side of the –O–.'};
@@ -1626,8 +1629,8 @@ function padHTML(){const ph=matchMedia('(max-width:700px)').matches;W=ph?400:640
 <div class="toolpanel">${[['C','+ Carbon'],['O','+ O'],['N','+ N'],['Cl','+ Cl'],['Br','+ Br']].map(([e,n])=>B(`data-el="${e}"`,n)).join('')}</div>
 <div class="toolpanel">${B('data-ord="1"','— Single')}${B('data-ord="2"','═ Double')}${B('data-ord="3"','≡ Triple')}${B('data-tool="swap"','🔁 Swap atom')}${B('data-tool="charge"','± Charge')}${B('data-tool="move"','✋ Move')}${B('data-tool="lasso"','🪢 Lasso')}${B('data-tool="erase"','⌫ Erase')}
 <button type="button" class="tbtn clean" id="padClean">${broom}Clean Up</button>${B('id="padUndo"','↶ Undo')}${B('id="padClear"','Clear')}${B('id="padRing"','⬡ Six-carbon ring')}</div>
-<div class="ws-wrap"><div class="selbar" id="selBar" aria-live="polite"></div><svg id="ws" viewBox="0 0 ${W} ${H}" role="application" aria-label="Drawing pad for skeletal structures" xmlns="http://www.w3.org/2000/svg"></svg></div>
-<div class="audit" id="padAudit"></div><p class="padhelp" id="padHelp"></p></div>`}
+<div class="ws-wrap"><div class="selbar" id="selBar" aria-live="polite"></div><svg id="ws" viewBox="0 0 ${W} ${H}" role="img" aria-label="Drawing pad for skeletal structures (mouse or touch). Keyboard users can type the structure as SMILES below the pad." xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div class="audit" id="padAudit"></div><p class="padhelp" id="padHelp"></p><details class="padkeys"><summary>Keyboard option: type the structure as SMILES</summary><label>SMILES, for example CCO (ethanol), CC(=O)O (acetic acid), C1CCCCC1 (cyclohexane), [O-] or [NH3+] for charges, and a dot between separate molecules<input id="padSmiles" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"></label><p class="padhelp">When this box has text, Check grades the typed structure instead of the drawing.</p></details></div>`}
 function bindPad(){document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));document.querySelectorAll('[data-el]').forEach(b=>b.onclick=()=>setEl(b.dataset.el));document.querySelectorAll('[data-ord]').forEach(b=>b.onclick=()=>setOrd(Number(b.dataset.ord)));
  $('padRing').onclick=addRing;$('padClean').onclick=cleanUp;$('padUndo').onclick=undo;$('padClear').onclick=()=>{if(!D.atoms.length)return;snap();D.atoms=[];D.bonds=[];SEL.clear();drawWS()};
  syncPadButtons();
@@ -1678,9 +1681,15 @@ function drawWS(){const svg=$('ws');if(!svg)return;const g=padGraph(),adj=adjOf(
   g.atoms.map((a,i)=>over[i]?`<span class="over">${a.el}${a.charge?(a.charge>0?'⁺':'⁻'):''} has too many bonds (max ${valence(a.el,a.charge)})</span>`:'').join('')}
 
 /* ================= checking ================= */
-function checkDrawing(accept){const g=padGraph();if(!g.atoms.length)return {ok:false,msg:'Draw your answer on the pad first.'};
- const adj=adjOf(g);const bad=g.atoms.map((a,i)=>hCount(g,adj,i)<0?a.el:null).filter(Boolean);
- if(bad.length)return {ok:false,msg:`One of your atoms has too many bonds (${bad[0]} can make at most ${valence(bad[0],0)} bonds). Look for the red circle.`};
+// Keyboard alternative to the pad: SMILES, with a dot between separate molecules. Returns null if it can't be read.
+function typedGraph(str){const atoms=[],bonds=[];for(const raw of str.split('.')){const part=raw.replace(/\s+/g,'');if(!part)continue;const digits=(part.replace(/\[[^\]]*\]/g,'').match(/\d/g)||[]),open=(part.match(/\(/g)||[]).length;
+ if(digits.some(d=>digits.filter(x=>x===d).length%2)||open!==(part.match(/\)/g)||[]).length)return null;let g;try{g=parseSmi(part)}catch(e){return null}
+ if(!g.atoms.length||g.atoms.some(a=>!(a.el in VAL))||g.bonds.some(b=>!(b.a in g.atoms)||!(b.b in g.atoms)||b.a===b.b))return null;const off=atoms.length;atoms.push(...g.atoms);g.bonds.forEach(b=>bonds.push({a:b.a+off,b:b.b+off,o:b.o}))}return atoms.length?{atoms,bonds}:null}
+function checkDrawing(accept){const typed=(($('padSmiles')||{}).value||'').trim();let g;
+ if(typed){g=typedGraph(typed);if(!g)return {ok:false,typed:true,msg:'I couldn’t read that SMILES. Use C, N, O, S, F, Cl, Br and I; = and # for double and triple bonds; ( ) for branches; matching ring digits like C1CCCCC1; [O-] or [NH3+] for charges; and a dot between separate molecules.'}}else g=padGraph();
+ if(!g.atoms.length)return {ok:false,msg:'Draw your answer on the pad first.'};
+ const adj=adjOf(g);const bad=g.atoms.filter((a,i)=>hCount(g,adj,i)<0);
+ if(bad.length)return {ok:false,msg:`One of your atoms has too many bonds (${bad[0].el}${bad[0].charge?(bad[0].charge>0?'⁺':'⁻'):''} can make at most ${valence(bad[0].el,bad[0].charge)} bonds).${typed?'':' Look for the red circle.'}`};
  let uc=comps(g);const hadWater=uc.some(isWater);uc=uc.filter(c=>!isWater(c));
  for(const alt of accept){const tg=alt.map(parseSmi);if(tg.length!==uc.length)continue;const used=new Array(uc.length).fill(false);
   if(tg.every(t=>{const j=uc.findIndex((u,k)=>!used[k]&&iso(u,t));if(j<0)return false;used[j]=true;return true}))return {ok:true,water:hadWater}}
@@ -1862,7 +1871,7 @@ function check(){if(state.stepDone)return;const st=state.q.steps[state.step];
   stepSolved(false);return}
  if(st.kind==='name'){const res=checkName($('nameIn').value,st.comp);if(!res.ok){if(normName($('nameIn').value)){ddLog(false);state.streak=0;updateStats()}fb('bad','🔎 Not quite. '+res.msg);return}stepSolved(false,res.note);return}
  const res=checkDrawing(st.accept);
- if(!res.ok){if(D.atoms.length){ddLog(false);state.streak=0;updateStats()}fb('bad','🔎 Not quite. '+res.msg);return}
+ if(!res.ok){if(D.atoms.length||(($('padSmiles')||{}).value||'').trim()){ddLog(false);state.streak=0;updateStats()}fb('bad','🔎 Not quite. '+res.msg);return}
  stepSolved(false);if(res.water)toast('Correct! (You don’t need to draw water.)')}
 function hint(){if(state.stepDone)return;const q=state.q,st=q.steps[state.step];let h='💡 '+esc(st.hint);
  if(st.kind==='draw'&&st.hintShow==='re')h+=`<div style="margin-top:6px">Here are the reactant structures:</div>${rxnHTML(q.r,{re:'struct',pr:'hidden'},state.qStyle)}`;

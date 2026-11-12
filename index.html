@@ -1050,7 +1050,9 @@ function molSVG(g,o){o=o||{};const BL=o.bl||36,raw=layoutGraph(g),pos=raw.map(p=
  const body=bondsSVG(g,pos,lab)+g.atoms.map((_,i)=>atomLabel(g,adj,pos,i,small.has(i))).join('');
  const xs=pos.map(p=>p.x),ys=pos.map(p=>p.y),pad=o.pad||22;const x0=Math.min(...xs)-pad-14,x1=Math.max(...xs)+pad+20,y0=Math.min(...ys)-pad,y1=Math.max(...ys)+pad;
  const w=x1-x0,h=y1-y0,sc=o.scale||1;
- return `<svg class="mol" viewBox="${x0.toFixed(0)} ${y0.toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}" width="${(w*sc).toFixed(0)}" height="${(h*sc).toFixed(0)}" role="img" aria-label="${esc(o.alt||'Skeletal structure')}" xmlns="http://www.w3.org/2000/svg">${body}</svg>`}
+ return `<svg class="mol" viewBox="${x0.toFixed(0)} ${y0.toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}" width="${(w*sc).toFixed(0)}" height="${(h*sc).toFixed(0)}" role="img" aria-label="${esc(o.alt||structAlt(g))}" xmlns="http://www.w3.org/2000/svg">${body}</svg>`}
+/* text alternative for a drawn structure: condensed formula for chains, molecular formula for rings */
+function structAlt(g){try{const c=condensedStr(g);if(c)return 'Structure with condensed formula '+c;return 'Ring structure, molecular formula '+formula(g).text}catch(e){return 'Skeletal structure'}}
 /* condensed structural formula */
 function condensedStr(g){const adj=adjOf(g);if(ringOf(g,adj))return null;
  const txt=(i,first,more)=>{const a=g.atoms[i],h=hCount(g,adj,i),hs=h?'H'+(h>1?h:''):'';const q=a.charge>0?'⁺':a.charge<0?'⁻':'';
@@ -1378,12 +1380,14 @@ const organic=parts=>parts.filter(p=>p.smi);
 const namesOf=parts=>parts.filter(p=>p.smi).map(p=>p.name);
 function mcType(r){const general=!r.noClass&&Math.random()<.4;const excl=r.excl||[];
  if(general){const ans=r.cls;const pool=shuf(CLS.filter(c=>c!==ans&&!excl.includes(c)));const opts=shuf([ans,...pool.slice(0,3)]);
-  return {kind:'mc',prompt:'Which general class of reaction is this?',options:opts.map(o=>({key:o,html:esc(o)})),answer:ans,
+  const wrongWhy={};opts.forEach(o=>{if(o!==ans&&CLSD[o])wrongWhy[o]=`<b>${esc(o)}</b> would mean ${CLSD[o]} That is not what happens here.`});
+  return {kind:'mc',prompt:'Which general class of reaction is this?',options:opts.map(o=>({key:o,html:esc(o)})),answer:ans,wrongWhy,
    hint:'Compare reactants and products: did something add across a double bond, swap, leave as water, gain O, gain H, split with water, or transfer H⁺?',
    why:`<b>${esc(ans)}</b>: ${CLSD[ans]}${r.type.toLowerCase()!==ans.toLowerCase()?` Specifically, this is <b>${esc(r.type)}</b>.`:''}`}}
  const ans=r.type;const conf=shuf((CONF[ans]||[]).filter(c=>!excl.includes(c)));const rest=shuf(SPEC.filter(s=>s!==ans&&!conf.includes(s)&&!excl.includes(s)));
  const opts=shuf([ans,...conf.slice(0,2),...rest.slice(0,1)]);
- return {kind:'mc',prompt:'What type of reaction is this?',options:opts.map(o=>({key:o,html:esc(o)})),answer:ans,
+ const wrongWhy={};opts.forEach(o=>{if(o!==ans&&SPECD[o])wrongWhy[o]=`In <b>${esc(o)}</b>, ${esc(SPECD[o])} Compare that with what happened to the reactants here.`});
+ return {kind:'mc',prompt:'What type of reaction is this?',options:opts.map(o=>({key:o,html:esc(o)})),answer:ans,wrongWhy,
   hint:'Look at what was added to the reactant, what left, and what happened to any double bonds or the C=O. The reagent above the arrow is a big clue.',
   why:`<b>${esc(ans)}</b> (${esc(r.cls.toLowerCase())}): ${esc(SPECD[ans])}`}}
 const nameHint='Decode each name: stem = carbon count (meth 1, eth 2, prop 3, but 4, pent 5, hex 6); ending = group (-ane, -ene, -yne, -ol, -al, -one, -oic acid, -oate, -amine, -amide); the number = which carbon the group is on.';

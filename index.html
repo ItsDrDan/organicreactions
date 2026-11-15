@@ -1188,8 +1188,8 @@ const TPL={
    rule:'Oxidation of a secondary (2°) alcohol: the carbon bearing –OH loses its H, and the C–OH becomes C=O, giving a ketone. (A 3° alcohol has no H on that carbon and does not oxidize.)',hint:'A 2° alcohol becomes a ketone. Turn the C–OH into C=O on the same carbon.'}},
  reduction(){const ald=Math.random()<.45;let s,p;
   if(ald){const n=rnd(1,5);s=aldehyde(n);p=alcohol(n,1)}else{const r=pick([[3,2],[4,2],[5,2],[5,3],[6,3],'cy']);s=r==='cy'?CY.one:ketone(...r);p=r==='cy'?CY.ol:alcohol(...r)}
-  return {type:'Reduction',cls:'Reduction',excl:['Hydrogenation','Addition'],set:'alcohol',reactants:[s,T('H₂')],cond:'Ni',products:[p],draw:[0],rev:{idx:[0],prompt:`Draw the aldehyde or ketone that was reduced (H₂, Ni) to give ${p.name}.`},
-   rule:`Reduction of a carbonyl: H₂ adds across the C=O, turning it into C–OH. An aldehyde gives a 1° alcohol and a ketone gives a 2° alcohol. This is the reverse of alcohol oxidation.`,hint:'H₂ adds one H to the C and one H to the O of the C=O. The C=O becomes C–OH on the same carbon.'}},
+  return {type:'Reduction',cls:'Reduction',excl:['Hydrogenation','Addition'],set:'alcohol',reactants:[s],cond:'[H]',products:[p],draw:[0],rev:{idx:[0],prompt:`Draw the aldehyde or ketone that was reduced ([H]) to give ${p.name}.`},
+   rule:`Reduction of a carbonyl: [H] stands for a reducing agent. It adds H atoms across the C=O, turning it into C–OH. An aldehyde gives a 1° alcohol and a ketone gives a 2° alcohol. This is the reverse of alcohol oxidation.`,hint:'[H] adds one H to the C and one H to the O of the C=O. The C=O becomes C–OH on the same carbon.'}},
  esterification(){const a=rnd(1,4),b=rnd(1,4),ac=acid(a),al=alcohol(b,1),es=ester(a,b);
   return {type:'Esterification',cls:'Condensation',set:'acid',reactants:[ac,al],cond:'H⁺, heat',products:[es,T('H₂O')],draw:[0],rev:{idx:[0,1],prompt:`${cap(es.name)} was made by esterification. Draw the carboxylic acid AND the alcohol that were used, as two separate molecules.`},
    rule:`Esterification is a condensation: the acid loses its –OH and the alcohol loses the H from its –OH, together making H₂O. The new C–O bond joins them. In the name, the alcohol part comes first (${ST[b]}yl) and the acid part ends in -oate (${ST[a]}anoate).`,hint:'Remove –OH from the acid and –H from the alcohol, then join the acid’s C=O carbon to the alcohol’s O.'}},
@@ -1239,7 +1239,7 @@ const BIOC={pyr:C('CC(=O)C(=O)O','pyruvic acid (pyruvate)'),lac:C('CC(O)C(=O)O',
 const BSAME='That’s the starting molecule unchanged. The enzyme does change it.';
 Object.assign(TPL,{
  bioLactate(){return {bio:1,type:'Reduction',cls:'Reduction',excl:['Hydrogenation','Addition'],set:'bio',reactants:[BIOC.pyr,T('NADH + H⁺')],cond:'lactate dehydrogenase',products:[BIOC.lac,T('NAD⁺')],draw:[0],rev:null,
-  rule:'Reduction of a ketone: NADH delivers the hydrogens (the body’s version of H₂), so the middle C=O becomes C–OH. Hard-working muscles do this when oxygen runs low, turning pyruvate into lactate.',hint:'NADH is a reducing agent, like H₂. Which C=O turns into C–OH: the ketone or the acid?',
+  rule:'Reduction of a ketone: NADH delivers the hydrogens (the body’s version of [H]), so the middle C=O becomes C–OH. Hard-working muscles do this when oxygen runs low, turning pyruvate into lactate.',hint:'NADH is a reducing agent, like [H]. Which C=O turns into C–OH: the ketone or the acid?',
   traps:[[[C('CC(O)CO','x')],'Only the ketone is reduced. The –COOH group stays a carboxylic acid.'],[[C('C=CC(=O)O','x')],'Reduction gives C–OH, not a C=C.'],[[BIOC.pyr],BSAME]]}},
  bioFumarase(){return {bio:1,type:'Hydration',cls:'Addition',set:'bio',reactants:[BIOC.fum,T('H₂O')],cond:'fumarase',products:[BIOC.mal],draw:[0],rev:null,
   rule:'Hydration: water adds across the C=C as H and –OH, making an alcohol. In the citric acid cycle the enzyme fumarase turns fumarate into malate this way.',hint:'Water adds H to one C=C carbon and –OH to the other.',
@@ -1289,7 +1289,8 @@ function medHTML(q){try{const r=q.road?q.road[1]:q.r;if(!r||r.bio)return '';cons
 
 /* ===== Over the Arrow: pick the reagent & conditions ===== */
 const AOPT={
- h2:{t:'H₂, Pt or Ni',w:'H₂ with a metal catalyst adds H atoms across a C=C or C=O. Did the product only gain H atoms?'},
+ h2:{t:'H₂, Pt or Ni',w:'H₂ with a metal catalyst is hydrogenation: it adds H atoms across a C=C or C≡C. Did a carbon–carbon double or triple bond become single?'},
+ red:{t:'[H] (reducing agent)',w:'[H] is reduction: it adds H atoms to a C=O, turning it into C–OH. Did a C=O become C–OH?'},
  x2:{t:'Br₂ or Cl₂ (no light)',w:'X₂ adds two halogen atoms across a C=C. Does the product have two new halogens?'},
  x2hv:{t:'Cl₂ or Br₂ with light (hν)',w:'X₂ with light swaps one H on an alkane for a halogen. Does the product have a halogen in place of an H?'},
  hx:{t:'HCl or HBr',w:'HX adds H and one halogen across a C=C. Does the product have a new halogen?'},
@@ -1303,10 +1304,10 @@ const AOPT={
  naoh:{t:'NaOH (no heat)',w:'NaOH just removes the acidic H from –COOH. Nothing splits apart.'},
  hcl:{t:'HCl',w:'HCl gives H⁺ to a base, like the N of an amine.'},
  o2:{t:'O₂, spark',w:'O₂ burns the compound completely to CO₂ and H₂O.'}};
-const ARW={combustion:{a:'o2',n:['x2hv','h2','dehyd']},substitution:{a:'x2hv',n:['x2','hx','h2']},hydrogenation:{a:'h2',n:['h2o','hx','x2']},halogenAdd:{a:'x2',n:['x2hv','hx','h2']},
+const ARW={combustion:{a:'o2',n:['x2hv','h2','dehyd']},substitution:{a:'x2hv',n:['x2','hx','h2']},hydrogenation:{a:'h2',n:['h2o','hx','x2'],x:['red']},halogenAdd:{a:'x2',n:['x2hv','hx','h2']},
  hydrohalogenation:{a:'hx',n:['x2','h2o','h2'],x:['hcl']},hydration:{a:'h2o',n:['dehyd','h2','hx'],x:['acidhyd']},dehydration:{a:'dehyd',n:['h2o','ox','h2']},
- ox1Ald:{a:'oxmild',n:['oxx','h2','dehyd'],x:['ox']},ox1Acid:{a:'oxx',n:['oxmild','h2','dehyd'],x:['ox']},oxAldAcid:{a:'ox',n:['h2','dehyd','h2o'],x:['oxmild','oxx']},ox2:{a:'ox',n:['h2','dehyd','h2o'],x:['oxmild','oxx']},
- reduction:{a:'h2',n:['ox','dehyd','h2o']},esterHydrolysis:{a:'acidhyd',n:['basehyd','h2','ox'],x:['h2o']},amideHydrolysis:{a:'acidhyd',n:['basehyd','h2','ox'],x:['h2o']},
+ ox1Ald:{a:'oxmild',n:['oxx','red','dehyd'],x:['ox']},ox1Acid:{a:'oxx',n:['oxmild','red','dehyd'],x:['ox']},oxAldAcid:{a:'ox',n:['red','dehyd','h2o'],x:['oxmild','oxx']},ox2:{a:'ox',n:['red','dehyd','h2o'],x:['oxmild','oxx']},
+ reduction:{a:'red',n:['ox','dehyd','h2o'],x:['h2']},esterHydrolysis:{a:'acidhyd',n:['basehyd','h2','ox'],x:['h2o']},amideHydrolysis:{a:'acidhyd',n:['basehyd','h2','ox'],x:['h2o']},
  saponification:{a:'basehyd',n:['acidhyd','h2','ox'],x:['naoh']},amideBase:{a:'basehyd',n:['acidhyd','h2','ox'],x:['naoh']},neutralAcid:{a:'naoh',n:['hcl','acidhyd','h2'],x:['basehyd']},neutralAmine:{a:'hcl',n:['naoh','acidhyd','h2o'],x:['hx']}};
 function arrowStep(r){const A=ARW[r.key];if(!A)return null;const ex=new Set([A.a,...(A.x||[])]);const near=A.n.filter(k=>!ex.has(k));
  const rest=shuf(Object.keys(AOPT).filter(k=>!ex.has(k)&&!near.includes(k)));const wrong=[...shuf(near).slice(0,2),...shuf([...near.slice(2),...rest]).filter(k=>!near.slice(0,0).includes(k))];
@@ -1381,7 +1382,7 @@ const SPEC=['Combustion','Halogenation (substitution)','Hydrogenation','Halogena
 const CONF={'Hydration':['Dehydration','Hydrolysis','Hydrogenation','Hydrohalogenation'],'Dehydration':['Hydration','Hydrolysis','Oxidation','Hydrogenation'],'Hydrogenation':['Hydration','Halogenation (addition)','Hydrohalogenation','Dehydration'],'Halogenation (addition)':['Halogenation (substitution)','Hydrohalogenation','Hydrogenation','Hydration'],'Halogenation (substitution)':['Halogenation (addition)','Hydrohalogenation','Combustion','Hydrogenation'],'Hydrohalogenation':['Halogenation (addition)','Hydration','Halogenation (substitution)','Hydrogenation'],'Oxidation':['Reduction','Dehydration','Hydration','Combustion'],'Reduction':['Oxidation','Hydration','Dehydration','Hydrolysis'],'Esterification':['Hydrolysis','Saponification','Amidation','Neutralization'],'Amidation':['Esterification','Hydrolysis','Neutralization','Saponification'],'Hydrolysis':['Esterification','Saponification','Hydration','Amidation'],'Saponification':['Neutralization','Esterification','Dehydration','Amidation'],'Neutralization':['Saponification','Esterification','Hydrolysis','Oxidation'],'Combustion':['Halogenation (substitution)','Hydrogenation','Dehydration','Reduction'],'Hemiacetal formation':['Acetal formation','Hydration','Esterification','Reduction'],'Acetal formation':['Hemiacetal formation','Esterification','Dehydration','Hydration']};
 const CLS=['Addition','Substitution','Elimination','Oxidation','Reduction','Condensation','Hydrolysis','Acid–base','Combustion'];
 const CLSD={Addition:'two reactants combine and atoms add across a double bond, so the C=C (or C=O) becomes a single bond.',Substitution:'one atom or group on the molecule is swapped for another.',Elimination:'a small molecule (here H₂O) is removed and a C=C double bond forms.',Oxidation:'the carbon gains bonds to oxygen and/or loses hydrogen.',Reduction:'the carbon gains hydrogen and/or loses bonds to oxygen.',Condensation:'two molecules join and a small molecule (H₂O) is released.',Hydrolysis:'water (or OH⁻) splits one molecule into two pieces.','Acid–base':'an H⁺ is transferred from an acid to a base, making a salt.',Combustion:'a hydrocarbon burns in O₂ to CO₂ and H₂O.'};
-const SPECD={'Halogenation (substitution)':'an H on an alkane is replaced by a halogen.','Hydrogenation':'H₂ adds across C=C or C≡C.','Halogenation (addition)':'X₂ (Br₂ or Cl₂) adds across C=C.','Hydrohalogenation':'HX (HCl or HBr) adds across C=C.','Hydration':'H₂O adds across C=C to make an alcohol.','Dehydration':'an alcohol loses H₂O to make an alkene.','Oxidation':'an alcohol or aldehyde gains O / loses H.','Reduction':'a C=O gains H₂ to become an alcohol.','Esterification':'acid + alcohol → ester + water.','Amidation':'acid + amine (or NH₃) → amide + water.','Hydrolysis':'water splits an ester or amide into two parts.','Saponification':'NaOH splits an ester into a carboxylate salt and an alcohol.','Neutralization':'an acid and a base make a salt.','Combustion':'burning in O₂ gives CO₂ + H₂O.','Hemiacetal formation':'one alcohol adds to an aldehyde or ketone C=O.','Acetal formation':'two alcohols react with an aldehyde or ketone; H₂O is released.'};
+const SPECD={'Halogenation (substitution)':'an H on an alkane is replaced by a halogen.','Hydrogenation':'H₂ adds across C=C or C≡C.','Halogenation (addition)':'X₂ (Br₂ or Cl₂) adds across C=C.','Hydrohalogenation':'HX (HCl or HBr) adds across C=C.','Hydration':'H₂O adds across C=C to make an alcohol.','Dehydration':'an alcohol loses H₂O to make an alkene.','Oxidation':'an alcohol or aldehyde gains O / loses H.','Reduction':'a C=O gains H atoms ([H]) to become an alcohol.','Esterification':'acid + alcohol → ester + water.','Amidation':'acid + amine (or NH₃) → amide + water.','Hydrolysis':'water splits an ester or amide into two parts.','Saponification':'NaOH splits an ester into a carboxylate salt and an alcohol.','Neutralization':'an acid and a base make a salt.','Combustion':'burning in O₂ gives CO₂ + H₂O.','Hemiacetal formation':'one alcohol adds to an aldehyde or ketone C=O.','Acetal formation':'two alcohols react with an aldehyde or ketone; H₂O is released.'};
 const organic=parts=>parts.filter(p=>p.smi);
 const namesOf=parts=>parts.filter(p=>p.smi).map(p=>p.name);
 function mcType(r){const general=!r.noClass&&Math.random()<.4;const excl=r.excl||[];
@@ -1473,14 +1474,14 @@ const TRAPS={
   n>=5?[[ketone(n,p===2?3:2)],'The C=O forms on the same carbon that held the –OH. Check the position number.']:null,
   [[alkene(n,1)],'That’s dehydration (H₂SO₄, heat), not [O].'],[[a],SAME]]},
  reduction(r){const s=r.reactants[0],n=nCarb(s.smi);if(s===CY.one)return [
-  [[CY.ane],'Reduction with H₂ turns C=O into C–OH; the oxygen stays.'],[[CY.ene],'Reduction gives C–OH, not a C=C.'],[[CY.one],SAME]];
+  [[CY.ane],'Reduction with [H] turns C=O into C–OH; the oxygen stays.'],[[CY.ene],'Reduction gives C–OH, not a C=C.'],[[CY.one],SAME]];
   if(/anal\b|methanal/.test(s.name))return [
-  [[acid(n)],'That’s oxidation. H₂ (Ni) adds H, turning C=O into C–OH.'],
-  [[alkane(n)],'H₂ reduces only the C=O to C–OH here; the oxygen stays.'],
+  [[acid(n)],'That’s oxidation. [H] adds H, turning C=O into C–OH.'],
+  [[alkane(n)],'[H] reduces only the C=O to C–OH here; the oxygen stays.'],
   n>=3?[[alcohol(n,2)],'The –OH stays on the carbon that had the C=O (the end carbon), giving a 1° alcohol.']:null,[[s],SAME]];
   const p=s.smi.indexOf('(=O)');return [
   [[alcohol(n,1)],'The –OH forms on the same carbon that had the C=O, so a ketone gives a 2° alcohol, not a 1° alcohol.'],
-  [[alkane(n)],'H₂ reduces only the C=O to C–OH here; the oxygen stays.'],
+  [[alkane(n)],'[H] reduces only the C=O to C–OH here; the oxygen stays.'],
   [[alkene(n,Math.max(1,p))],'Reduction of a C=O gives C–OH, not a C=C.'],[[s],SAME]]},
  esterification(r){const a=nCarb(r.reactants[0].smi),b=nCarb(r.reactants[1].smi);return [
   a!==b?[[ester(b,a)],'The two halves are swapped. The C=O stays with the acid’s carbons; the alcohol’s carbons end up on the single-bonded O.']:null,
@@ -1900,7 +1901,7 @@ const REF=[
  ['Hydration','Addition','alkene + H₂O, H⁺','H and OH add; OH goes to the C with fewer H (Markovnikov)','propene → 2-propanol'],
  ['Dehydration','Elimination','alcohol + H₂SO₄, heat','OH and a neighboring H leave as H₂O; C=C forms','ethanol → ethene'],
  ['Oxidation','Oxidation','alcohol or aldehyde + [O]','1° alcohol → aldehyde → acid; 2° → ketone; 3° → no reaction','2-propanol → propanone'],
- ['Reduction','Reduction','aldehyde or ketone + H₂, Ni','C=O becomes C–OH','propanal → 1-propanol'],
+ ['Reduction','Reduction','aldehyde or ketone + [H]','C=O becomes C–OH','propanal → 1-propanol'],
  ['Esterification','Condensation','acid + alcohol, H⁺','Ester + H₂O','acetic acid + methanol → methyl ethanoate'],
  ['Amidation','Condensation','acid + NH₃ or 1°/2° amine, heat','Amide + H₂O','acetic acid + NH₃ → ethanamide'],
  ['Hydrolysis','Hydrolysis','ester or amide + H₂O, H⁺','Ester → acid + alcohol. Amide in acid → acid + ammonium salt; in base → carboxylate salt + amine','methyl ethanoate → acetic acid + methanol'],

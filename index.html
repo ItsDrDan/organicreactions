@@ -1093,7 +1093,7 @@ function expandedSVG(g,o){o=o||{};const adj=adjOf(g);if(ringOf(g,adj)||comps(g).
  const T=(q,t,col,ch)=>{const c=P(q);return `<text x="${c.x}" y="${c.y+6.5}" text-anchor="middle" font-size="19" font-weight="800" font-family="Inter,Helvetica,Arial,sans-serif" fill="${col}">${t}</text>`+(ch?`<text x="${c.x+9}" y="${c.y-5}" font-size="14" font-weight="900" fill="${col}">${ch>0?'+':'−'}</text>`:'')};
  g.atoms.forEach((a,i)=>body+=T(pos[i],a.el,ECOL[a.el]||'#2d3f4b',a.charge));Hs.forEach(h=>body+=T(h,'H','#55687a'));
  const all=[...pos,...Hs].map(P),xs=all.map(q=>q.x),ys=all.map(q=>q.y),pad=18;const x0=Math.min(...xs)-pad,y0=Math.min(...ys)-pad,w=Math.max(...xs)-x0+pad+6,h=Math.max(...ys)-y0+pad;const sc=o.scale||.85;
- return `<svg class="mol" viewBox="${x0} ${y0} ${w} ${h}" width="${(w*sc).toFixed(0)}" height="${(h*sc).toFixed(0)}" role="img" aria-label="Expanded structural formula" xmlns="http://www.w3.org/2000/svg">${body}</svg>`}
+ return `<svg class="mol" viewBox="${x0} ${y0} ${w} ${h}" width="${(w*sc).toFixed(0)}" height="${(h*sc).toFixed(0)}" role="img" aria-label="${esc(structAlt(g))}" xmlns="http://www.w3.org/2000/svg">${body}</svg>`}
 function structHTML(smi,style,scale){const g=parseSmi(smi);if(style==='expanded'){const e=expandedSVG(g,{scale:scale||.8});if(e)return e}if(style==='condensed'){const c=condensedStr(g);if(c)return `<div class="condensed">${condHTML(c)}</div>`}return molSVG(g,{scale:scale||.85})}
 
 /* ================= compound library ================= */
